@@ -1,0 +1,51 @@
+// Naora · data model, Sprint 0.
+// Only the multi-tenant core every booking product needs: a business, its people and their role.
+// Services, schedules and appointments arrive after the validation interviews.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+/// A salon, barbershop or studio. Every row of business data belongs to exactly one.
+model Business {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  timezone  String       @default("America/Sao_Paulo")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  members   Membership[]
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+}
+
+/// Who works where, and with which permissions.
+model Membership {
+  id         String   @id @default(cuid())
+  role       Role     @default(STAFF)
+  businessId String
+  userId     String
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([userId])
+}
