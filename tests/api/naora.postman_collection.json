@@ -1,0 +1,131 @@
+{
+  "info": {
+    "name": "Naora API",
+    "description": "Contract tests for the Naora HTTP API. Run with Newman in CI: npm run test:api.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /api/health answers with the app and database status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('is JSON', () => pm.response.to.be.json);",
+                  "const body = pm.response.json();",
+                  "pm.test('reports the app as ok', () => pm.expect(body.status).to.eql('ok'));",
+                  "pm.test('reports the database state', () => pm.expect(body.database).to.be.oneOf(['ok', 'not-configured']));",
+                  "pm.test('is never cached', () => pm.expect(pm.response.headers.get('Cache-Control')).to.include('no-store'));",
+                  "pm.test('answers in under 1 second', () => pm.expect(pm.response.responseTime).to.be.below(1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "API responses cannot run scripts or be framed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const csp = pm.response.headers.get('Content-Security-Policy') || '';",
+                  "pm.test(\"default-src is 'none'\", () => pm.expect(csp).to.include(\"default-src 'none'\"));",
+                  "pm.test(\"frame-ancestors is 'none'\", () => pm.expect(csp).to.include(\"frame-ancestors 'none'\"));",
+                  "pm.test('no MIME sniffing', () => pm.expect(pm.response.headers.get('X-Content-Type-Options')).to.eql('nosniff'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pages",
+      "item": [
+        {
+          "name": "GET / redirects to the Portuguese page",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('is a redirect', () => pm.expect(pm.response.code).to.be.oneOf([301, 302, 307, 308]));",
+                  "pm.test('goes to /pt', () => pm.expect(pm.response.headers.get('Location')).to.match(/\\/pt$/));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": []
+            }
+          },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          }
+        },
+        {
+          "name": "GET /.well-known/security.txt has a contact",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('has a Contact line', () => pm.expect(pm.response.text()).to.match(/^Contact: mailto:/m));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/.well-known/security.txt",
+              "host": ["{{baseUrl}}"],
+              "path": [".well-known", "security.txt"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
