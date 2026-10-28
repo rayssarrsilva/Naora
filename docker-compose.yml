@@ -1,0 +1,43 @@
+# Local development: `docker compose up -d db` starts Postgres only.
+# `docker compose up --build` also builds and runs the production image on http://localhost:3000.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: naora
+      POSTGRES_PASSWORD: naora
+      POSTGRES_DB: naora
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U naora -d naora']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: build
+    command: npx prisma migrate deploy
+    environment:
+      DATABASE_URL: postgresql://naora:naora@db:5432/naora
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://naora:naora@db:5432/naora
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    ports:
+      - '3000:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
