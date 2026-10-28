@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+@import '@rayssarrsilva/ipe/tokens.css';
+@import '@rayssarrsilva/ipe/tailwind.css';
+@import '@rayssarrsilva/ipe/styles.css';
+@import './theme.css';
+
+@layer base {
+  html {
+    background: var(--ipe-bg-canvas);
+    color: var(--ipe-text-primary);
+    font: var(--ipe-typography-body-md);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: var(--ipe-border-width-focus) solid var(--ipe-border-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility text-display {
+  font: var(--ipe-typography-heading-lg);
+}
+
+@utility text-heading-md {
+  font: var(--ipe-typography-heading-md);
+}

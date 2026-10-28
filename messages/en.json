@@ -1,0 +1,35 @@
+{
+  "Metadata": {
+    "title": "Naora · online booking with a Pix deposit",
+    "description": "Online booking for salons, barbershops and studios: clients pick a time from a link and hold it with a Pix deposit. In progress."
+  },
+  "Theme": {
+    "dark": "Use dark theme",
+    "light": "Use light theme"
+  },
+  "Header": {
+    "skip": "Skip to content",
+    "otherLocale": "Português"
+  },
+  "Home": {
+    "status": "In progress · free beta coming soon",
+    "title": "A full calendar, fewer no-shows, and less time on WhatsApp.",
+    "lead": "Naora will be online booking for anyone who works by appointment. Clients pick a time from a link and hold it with a Pix deposit. You see the day, the team and what came in, in one place.",
+    "stepsTitle": "How it will work",
+    "step1": "You share your link on Instagram or WhatsApp.",
+    "step2": "Your client picks a service and a free time.",
+    "step3": "They pay a Pix deposit, and the time is held for both of you.",
+    "ctaTitle": "Want to try it for free?",
+    "ctaText": "The first version will be free for the first salons, barbershops and studios that try it and share what they think. Send me an email and I will let you know when it opens.",
+    "ctaButton": "I want to try it",
+    "ctaSubject": "I want to try Naora"
+  },
+  "Footer": {
+    "built": "Built in public by Rayssa Roberta.",
+    "source": "Code on GitHub"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "back": "Back to the home page"
+  }
+}

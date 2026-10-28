@@ -1,0 +1,48 @@
+/*
+ * Naora on Ipê 2.0 (same palette as Moringa).
+ * Light: pure white surfaces from Ipê. Dark: charcoal greys (like Spotify's dark mode)
+ * instead of pure black, easier on the eyes for long browsing.
+ * Main action: a solid forest green with white text. Contrast is checked in docs/design/THEME.md.
+ */
+
+:root,
+[data-theme='light'] {
+  --ipe-action-primary: var(--ipe-color-mata-700);
+  --ipe-action-secondary: var(--ipe-color-neutral-950);
+  --ipe-text-on-accent: var(--ipe-color-neutral-0);
+  --ipe-border-focus: var(--ipe-color-neutral-950);
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --ipe-bg-canvas: #121212;
+  --ipe-bg-surface: #1e1e1e;
+  --ipe-bg-raised: #282828;
+  --ipe-text-secondary: #b3b3b3;
+  --ipe-border-subtle: #333333;
+  --ipe-border-control: #8a8a8a;
+  --ipe-action-primary: #2e7d4f;
+  --ipe-action-secondary: var(--ipe-color-neutral-0);
+  --ipe-text-on-accent: var(--ipe-color-neutral-0);
+  --ipe-text-on-strong: #121212;
+  --ipe-border-focus: var(--ipe-color-neutral-0);
+  color-scheme: dark;
+}
+
+/* No choice saved yet: follow the device. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ipe-bg-canvas: #121212;
+    --ipe-bg-surface: #1e1e1e;
+    --ipe-bg-raised: #282828;
+    --ipe-text-secondary: #b3b3b3;
+    --ipe-border-subtle: #333333;
+    --ipe-border-control: #8a8a8a;
+    --ipe-action-primary: #2e7d4f;
+    --ipe-action-secondary: var(--ipe-color-neutral-0);
+    --ipe-text-on-accent: var(--ipe-color-neutral-0);
+    --ipe-text-on-strong: #121212;
+    --ipe-border-focus: var(--ipe-color-neutral-0);
+    color-scheme: dark;
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "Metadata": {
+    "title": "Naora · agenda online com sinal no Pix",
+    "description": "Agenda online para salões, barbearias e estúdios: a cliente escolhe o horário por um link e garante a vaga com um sinal no Pix. Em construção."
+  },
+  "Theme": {
+    "dark": "Usar tema escuro",
+    "light": "Usar tema claro"
+  },
+  "Header": {
+    "skip": "Pular para o conteúdo",
+    "otherLocale": "English"
+  },
+  "Home": {
+    "status": "Em construção · beta gratuito em breve",
+    "title": "Sua agenda cheia, sem cliente faltando e sem passar o dia no WhatsApp.",
+    "lead": "A Naora vai ser uma agenda online para quem atende com hora marcada. A cliente escolhe o horário por um link e garante a vaga com um sinal no Pix. Você vê o dia, a equipe e o que entrou, num lugar só.",
+    "stepsTitle": "Como vai funcionar",
+    "step1": "Você manda o seu link no Instagram ou no WhatsApp.",
+    "step2": "A cliente escolhe o serviço e o horário livre.",
+    "step3": "Ela paga um sinal no Pix e o horário fica garantido para as duas.",
+    "ctaTitle": "Quer testar de graça?",
+    "ctaText": "A primeira versão vai ser gratuita para os primeiros salões, barbearias e estúdios que toparem testar e contar o que achou. Me manda um e-mail e eu te aviso quando abrir.",
+    "ctaButton": "Quero testar grátis",
+    "ctaSubject": "Quero testar a Naora"
+  },
+  "Footer": {
+    "built": "Feito em público por Rayssa Roberta.",
+    "source": "Código no GitHub"
+  },
+  "NotFound": {
+    "title": "Página não encontrada",
+    "back": "Voltar para o início"
+  }
+}
