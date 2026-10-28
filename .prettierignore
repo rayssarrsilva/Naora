@@ -1,0 +1,8 @@
+.next
+node_modules
+package-lock.json
+coverage
+cypress/screenshots
+cypress/videos
+src/generated
+prisma/migrations
