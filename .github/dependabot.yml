@@ -39,3 +39,7 @@ updates:
       timezone: America/Sao_Paulo
     commit-message:
       prefix: chore(docker)
+    ignore:
+      # Stay on the Node.js LTS line that .nvmrc and CI use; move both together.
+      - dependency-name: node
+        update-types: [version-update:semver-major]

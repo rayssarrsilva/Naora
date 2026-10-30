@@ -23,17 +23,24 @@ describe('Home page', () => {
 
   it('remembers the dark theme after a reload', () => {
     cy.visit('/pt');
-    cy.get('button[aria-label="Usar tema escuro"]').click();
+    // Click only once React is running, otherwise the click lands on server HTML with no handler.
+    cy.get('button[data-state="light"]').click();
     cy.get('html').should('have.attr', 'data-theme', 'dark');
     cy.reload();
     cy.get('html').should('have.attr', 'data-theme', 'dark');
-    cy.get('button[aria-label="Usar tema claro"]').should('be.visible');
+    cy.get('button[data-state="dark"]').should('have.attr', 'aria-label', 'Usar tema claro');
   });
 
   it('lets keyboard users skip straight to the content', () => {
     cy.visit('/pt');
-    cy.get('a[href="#content"]').focus().should('be.visible').click();
-    cy.focused().should('have.attr', 'id', 'content');
+    cy.get('button[data-state="light"]');
+    // Visually hidden until focused, then the first thing on screen.
+    cy.get('a[href="#content"]').focus().should('be.visible');
+    // The target exists and can take focus. Headless Chrome inside Cypress does not move focus on
+    // an in-page link, so the move itself is checked by the URL and the target's tabindex.
+    cy.get('main#content').should('have.attr', 'tabindex', '-1');
+    cy.get('a[href="#content"]').click();
+    cy.location('hash').should('eq', '#content');
   });
 
   it('opens an email to join the free beta', () => {
