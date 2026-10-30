@@ -2,7 +2,7 @@
 # Naora · production image. Three stages keep the final image small: no dev dependencies,
 # no source code, only the standalone Next.js server. It runs as a non-root user.
 
-FROM node:22-alpine AS deps
+FROM node:25-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
@@ -10,14 +10,14 @@ COPY prisma.config.ts ./
 ENV CYPRESS_INSTALL_BINARY=0 HUSKY=0
 RUN npm ci --legacy-peer-deps
 
-FROM node:22-alpine AS build
+FROM node:25-alpine AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate && npm run build
 
-FROM node:22-alpine AS run
+FROM node:25-alpine AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 RUN addgroup -S naora && adduser -S naora -G naora
