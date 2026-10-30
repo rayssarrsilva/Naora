@@ -1,9 +1,15 @@
 describe('Home page', () => {
-  it('sends visitors to the Portuguese page by default', () => {
-    cy.visit('/');
+  it('opens in Portuguese for a browser set to Portuguese', () => {
+    cy.visit('/', { headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' } });
     cy.location('pathname').should('eq', '/pt');
     cy.get('html').should('have.attr', 'lang', 'pt-BR');
     cy.get('h1').should('contain.text', 'Sua agenda cheia');
+  });
+
+  it('opens in English for a browser set to English', () => {
+    cy.visit('/', { headers: { 'Accept-Language': 'en-US,en;q=0.9' } });
+    cy.location('pathname').should('eq', '/en');
+    cy.get('html').should('have.attr', 'lang', 'en');
   });
 
   it('switches to English and back', () => {

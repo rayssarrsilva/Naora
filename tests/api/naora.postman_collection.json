@@ -75,7 +75,7 @@
       "name": "Pages",
       "item": [
         {
-          "name": "GET / redirects to the Portuguese page",
+          "name": "GET / redirects a Portuguese browser to /pt",
           "event": [
             {
               "listen": "test",
@@ -90,7 +90,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "pt-BR,pt;q=0.9"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/",
               "host": ["{{baseUrl}}"],
