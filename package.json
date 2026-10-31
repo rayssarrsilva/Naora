@@ -73,7 +73,7 @@
     "husky": "^9.1.7",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "lint-staged": "^16.4.0",
+    "lint-staged": "^17.6.0",
     "newman": "^6.2.3",
     "prettier": "^3.9.10",
     "prisma": "^7.10.1",
