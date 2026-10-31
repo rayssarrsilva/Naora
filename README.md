@@ -11,7 +11,7 @@
 
 </div>
 
-> **Status: Sprint 1 done.** A professional signs in, creates the business page, adds services and sets opening hours; the public page shows them. Online booking is the next sprint. Built in public; follow along on [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
+> **Status: Sprint 2 done.** Clients book a free time on the business's page, and two clients can never get the same time. The Pix deposit is the next sprint. Built in public; follow along on [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
 
 ## Why "Naora"?
 
@@ -24,10 +24,13 @@ Naora is how "na hora" sounds when you say it fast in Portuguese: "on time", "ri
 - **Services**: name, duration, price and the Pix deposit, with pause and delete.
 - **Opening hours** for each day of the week.
 - **Public page** with the active services and the hours, ready to share on Instagram or WhatsApp.
+- **Online booking**: the client picks a service, a day and a free time, leaves a name and WhatsApp number, and gets a confirmation with an "Add to Google Calendar" link. No sign-up for clients.
+- **No double booking**: the check and the insert run in one transaction under a per-business Postgres lock, so when two clients click the same time at once, exactly one gets it. Times respect opening hours, the service length, one hour of notice and the business's time zone.
+- **Upcoming bookings** in the dashboard, with a WhatsApp link to the client and a cancel button that gives the time back.
 
 ## Where it is going
 
-- **Clients** open the professional's link, pick a service and a free time, and pay a small deposit by Pix to hold it.
+- **Clients** pay a small deposit by Pix to hold the time, confirmed by a Mercado Pago webhook.
 - **Professionals** see the day, the team and what came in, in one place, and stop losing chairs to no-shows.
 
 It is a real product, with real payments, built for small businesses in Uberaba, Brazil, first. The reasoning and the hypotheses to test are in the [product brief](./docs/discovery/BRIEF.md).
@@ -47,12 +50,12 @@ It is a real product, with real payments, built for small businesses in Uberaba,
 
 Every pull request runs four jobs ([`ci.yml`](./.github/workflows/ci.yml)):
 
-| Job         | What it proves                                                                                                                                                                                                                                              |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Quality     | Formatting, lint with zero warnings, strict typecheck, unit and component tests with coverage                                                                                                                                                               |
-| Database    | Every migration applies to an empty Postgres, `schema.prisma` has no change without a migration, and the integration tests pass against it, including **tenant isolation** (one business can never read, change or delete another's data)                   |
-| E2E and API | The production build, on a real Postgres, passes Cypress (sign-in, onboarding, services, hours and the public page; navigation, theme, keyboard, WCAG 2.2 AA with axe, 320px, security headers) and the Postman collection (health, API headers, redirects) |
-| Docker      | The image builds, migrates, starts healthy, reaches the database and does not run as root                                                                                                                                                                   |
+| Job         | What it proves                                                                                                                                                                                                                                                                                                                   |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Quality     | Formatting, lint with zero warnings, strict typecheck, unit and component tests with coverage                                                                                                                                                                                                                                    |
+| Database    | Every migration applies to an empty Postgres, `schema.prisma` has no change without a migration, and the integration tests pass against it, including **tenant isolation** (one business can never read, change or delete another's data) and **no double booking** (eight simultaneous requests for one time, exactly one wins) |
+| E2E and API | The production build, on a real Postgres, passes Cypress (sign-in, onboarding, services, hours, the public page, booking a time and cancelling it; navigation, theme, keyboard, WCAG 2.2 AA with axe, 320px, security headers) and the Postman collection (health, API headers, redirects)                                       |
+| Docker      | The image builds, migrates, starts healthy, reaches the database and does not run as root                                                                                                                                                                                                                                        |
 
 ## Run it locally
 
@@ -83,7 +86,7 @@ Or run everything as in production: `docker compose up --build` (http://localhos
 ```
 src/app/[locale]/   pages, one tree per language
 src/app/api/        route handlers (health check)
-src/lib/            domain and infrastructure code (security headers, database, health)
+src/lib/            domain code (business, booking and time zones) and infrastructure (security, database)
 src/proxy.ts        per-request CSP nonce and language routing
 prisma/             schema and versioned migrations
 cypress/            end-to-end and accessibility tests
@@ -95,7 +98,7 @@ docs/discovery/     product brief and hypotheses
 
 1. **Sprint 0** · foundation: app, database, Docker, tests, security, CI ✅
 2. **Sprint 1** · a business opens its page; services and opening hours ✅
-3. **Sprint 2** · clients book a free time; double booking is impossible
+3. **Sprint 2** · clients book a free time; double booking is impossible ✅
 4. **Sprint 3** · Pix deposit with Mercado Pago, confirmed by webhook
 5. **Beta** · first businesses in Uberaba, QA cycle, then the first paid plan
 
