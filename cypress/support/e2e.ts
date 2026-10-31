@@ -45,11 +45,14 @@ Cypress.Commands.add('waitForApp', () => {
 /** Signs in with a fresh one-click demo account and lands on the dashboard. */
 Cypress.Commands.add('signInAsDemo', (locale = 'pt') => {
   cy.visit(`/${locale}/entrar`);
+  // A click before React takes over the page can be lost when React redraws it after hydration.
+  cy.waitForApp();
   cy.contains(
     'button',
     locale === 'pt' ? 'Entrar com uma conta demo' : 'Sign in with a demo account',
   ).click();
-  cy.location('pathname').should('eq', `/${locale}/painel`);
+  // Sign-in writes a user to the database and redirects twice; give CI more than the default 4s.
+  cy.location('pathname', { timeout: 15000 }).should('eq', `/${locale}/painel`);
   cy.waitForApp();
 });
 

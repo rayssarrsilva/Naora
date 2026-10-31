@@ -8,6 +8,8 @@ export default defineConfig({
     viewportWidth: 1280,
     viewportHeight: 800,
     video: false,
-    retries: { runMode: 1, openMode: 0 },
+    // CI machines are slower than a laptop, and server actions hit a real database there.
+    defaultCommandTimeout: 10000,
+    retries: { runMode: 2, openMode: 0 },
   },
 });
