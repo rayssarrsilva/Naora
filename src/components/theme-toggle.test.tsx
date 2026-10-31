@@ -26,7 +26,8 @@ beforeEach(() => {
 describe('ThemeToggle', () => {
   it('offers the dark theme when the page is light', () => {
     renderToggle();
-    expect(screen.getByRole('button', { name: 'Usar tema escuro' })).toBeInTheDocument();
+    const button = screen.getByRole('button', { name: 'Usar tema escuro' });
+    expect(button).toHaveAttribute('data-state', 'light');
   });
 
   it('switches to dark, remembers the choice and offers light next', async () => {

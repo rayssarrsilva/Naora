@@ -49,6 +49,8 @@ export function ThemeToggle({ className }: { className: string }) {
     <button
       type="button"
       onClick={toggle}
+      // "pending" until React runs in the browser; then the theme in use. Tests wait for it.
+      data-state={theme ?? 'pending'}
       className={className}
       aria-label={theme === 'dark' ? t('light') : t('dark')}
       title={theme === 'dark' ? t('light') : t('dark')}
