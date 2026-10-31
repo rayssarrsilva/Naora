@@ -9,7 +9,9 @@
   },
   "Header": {
     "skip": "Pular para o conteúdo",
-    "otherLocale": "English"
+    "otherLocale": "English",
+    "signIn": "Entrar",
+    "panel": "Meu painel"
   },
   "Home": {
     "status": "Em construção · beta gratuito em breve",
@@ -31,5 +33,90 @@
   "NotFound": {
     "title": "Página não encontrada",
     "back": "Voltar para o início"
+  },
+  "SignIn": {
+    "title": "Entrar na Naora",
+    "lead": "Entre para criar a página do seu negócio, cadastrar serviços e definir o horário de funcionamento.",
+    "demo": "Entrar com uma conta demo",
+    "demoHint": "Sem cadastro: cria uma conta vazia só para você testar. Os dados são de demonstração.",
+    "google": "Entrar com Google",
+    "noProviders": "O login ainda não está configurado neste ambiente."
+  },
+  "Panel": {
+    "title": "Meu painel",
+    "signOut": "Sair",
+    "demoBanner": "Você está numa conta demo. Pode testar à vontade: nada aqui é de verdade.",
+    "onboardingTitle": "Crie a página do seu negócio",
+    "onboardingLead": "É o endereço que você vai mandar para as clientes no Instagram e no WhatsApp.",
+    "name": "Nome do negócio",
+    "namePlaceholder": "Studio da Ana",
+    "slug": "Endereço da página",
+    "slugHint": "Só letras minúsculas, números e hífen. Fica assim: {url}",
+    "create": "Criar página",
+    "publicLink": "Sua página pública",
+    "openPublic": "Abrir página",
+    "servicesTitle": "Serviços",
+    "servicesLead": "O que as clientes podem agendar. O sinal é pago no Pix para garantir o horário.",
+    "servicesEmpty": "Nenhum serviço ainda. Cadastre o primeiro abaixo.",
+    "serviceName": "Serviço",
+    "serviceNamePlaceholder": "Corte feminino",
+    "duration": "Duração (minutos)",
+    "price": "Preço (R$)",
+    "deposit": "Sinal (R$)",
+    "depositHint": "Use 0 para não cobrar sinal.",
+    "addService": "Adicionar serviço",
+    "serviceAdded": "Serviço adicionado.",
+    "delete": "Excluir",
+    "deleteLabel": "Excluir {name}",
+    "deleted": "Serviço excluído.",
+    "pause": "Pausar",
+    "pauseLabel": "Pausar {name}",
+    "resume": "Reativar",
+    "resumeLabel": "Reativar {name}",
+    "paused": "Pausado",
+    "summary": "{duration} min · {price} · sinal {deposit}",
+    "hoursTitle": "Horário de funcionamento",
+    "hoursLead": "Os dias e horários em que você atende.",
+    "open": "Aberto",
+    "opensAt": "Abre às",
+    "closesAt": "Fecha às",
+    "saveHours": "Salvar horários",
+    "hoursSaved": "Horários salvos."
+  },
+  "Weekdays": {
+    "0": "Domingo",
+    "1": "Segunda",
+    "2": "Terça",
+    "3": "Quarta",
+    "4": "Quinta",
+    "5": "Sexta",
+    "6": "Sábado"
+  },
+  "Public": {
+    "services": "Serviços",
+    "noServices": "Este negócio ainda não cadastrou serviços.",
+    "duration": "{minutes} min",
+    "deposit": "Sinal de {deposit} no Pix para garantir",
+    "noDeposit": "Sem sinal",
+    "hours": "Horário de funcionamento",
+    "closed": "Fechado",
+    "bookingSoon": "O agendamento online chega em breve."
+  },
+  "Errors": {
+    "nameShort": "Use pelo menos 2 letras.",
+    "nameLong": "Use no máximo 60 caracteres.",
+    "slugInvalid": "Use de 3 a 40 letras minúsculas, números ou hífen, sem hífen no começo ou no fim.",
+    "slugTaken": "Esse endereço já está em uso. Tente outro.",
+    "alreadyHasBusiness": "Você já tem um negócio cadastrado.",
+    "durationInvalid": "Use uma duração entre 5 e 480 minutos.",
+    "durationStep": "Use múltiplos de 5 minutos (30, 45, 60…).",
+    "priceInvalid": "Digite um valor como 45 ou 45,90.",
+    "depositInvalid": "Digite um valor como 20 ou 0.",
+    "depositTooHigh": "O sinal não pode ser maior que o preço.",
+    "timeInvalid": "Use o formato 09:30.",
+    "closesBeforeOpens": "O horário de fechar tem que ser depois do de abrir.",
+    "weekdaysRepeated": "Há um dia repetido na semana.",
+    "generic": "Não deu certo. Tente de novo em instantes.",
+    "signedOut": "Sua sessão terminou. Entre de novo."
   }
 }
