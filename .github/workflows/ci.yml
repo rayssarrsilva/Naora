@@ -68,14 +68,30 @@ jobs:
         run: npm run db:deploy
       - name: Fail if schema.prisma changed without a migration
         run: npm run db:check
+      - name: Integration tests (repositories against real Postgres, tenant isolation)
+        run: npm run test:integration
 
   e2e:
     name: Build, E2E (Cypress) and API tests (Newman)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: naora
+          POSTGRES_PASSWORD: naora
+          POSTGRES_DB: naora
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U naora -d naora" --health-interval 5s --health-timeout 3s
+          --health-retries 10
     env:
       CYPRESS_INSTALL_BINARY: ''
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      DATABASE_URL: postgresql://naora:naora@localhost:5432/naora
+      # Test-only secret; production sets its own.
+      AUTH_SECRET: ci-only-secret-not-used-anywhere-else
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -84,6 +100,7 @@ jobs:
           cache: npm
       - run: npm ci --legacy-peer-deps
       - run: npm run build
+      - run: npm run db:deploy
       - name: Start the production server (standalone output, as in Docker)
         run: |
           cp -r public .next/standalone/
