@@ -53,6 +53,9 @@ Cypress.Commands.add('signInAsDemo', (locale = 'pt') => {
   ).click();
   // Sign-in writes a user to the database and redirects twice; give CI more than the default 4s.
   cy.location('pathname', { timeout: 15000 }).should('eq', `/${locale}/painel`);
+  // The redirect after sign-in is a client-side navigation that can still redraw the page while
+  // the test types. A full load of the dashboard leaves nothing in flight.
+  cy.visit(`/${locale}/painel`);
   cy.waitForApp();
 });
 

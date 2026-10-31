@@ -3,9 +3,6 @@
  * opening hours, and the public page shows them. Needs the app running with a database.
  */
 describe('Business dashboard', () => {
-  const name = `Studio Teste ${Date.now()}`;
-  const slug = name.toLowerCase().replaceAll(' ', '-');
-
   it('sends signed-out visitors to the sign-in page', () => {
     cy.visit('/pt/painel');
     cy.location('pathname').should('eq', '/pt/entrar');
@@ -13,6 +10,9 @@ describe('Business dashboard', () => {
   });
 
   it('creates the page, adds a service, sets the hours and shows them publicly', () => {
+    // A new name on every attempt: a retry must not find the address taken by the attempt before.
+    const name = `Studio Teste ${Date.now()}`;
+    const slug = name.toLowerCase().replaceAll(' ', '-');
     cy.signInAsDemo();
     cy.contains('Você está numa conta demo').should('be.visible');
     cy.checkPageA11y();
