@@ -10,6 +10,7 @@ import {
   saveHours,
   setServiceActive,
 } from '@/lib/business/repository';
+import { cancelBooking } from '@/lib/booking/repository';
 import { businessSchema, hoursSchema, serviceSchema } from '@/lib/business/schema';
 
 /**
@@ -89,6 +90,14 @@ export async function saveHoursAction(input: unknown, slug: string): Promise<Act
   if (!(await saveHours(userId, parsed.data.days))) return { ok: false, error: 'generic' };
   refreshPanel();
   refreshPublic(slug);
+  return { ok: true };
+}
+
+export async function cancelBookingAction(bookingId: string): Promise<ActionResult> {
+  const userId = await currentUserId();
+  if (!userId) return { ok: false, error: 'signedOut' };
+  if (!(await cancelBooking(userId, String(bookingId)))) return { ok: false, error: 'generic' };
+  refreshPanel();
   return { ok: true };
 }
 
