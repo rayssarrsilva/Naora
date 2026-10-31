@@ -81,7 +81,14 @@
     "opensAt": "Opens at",
     "closesAt": "Closes at",
     "saveHours": "Save hours",
-    "hoursSaved": "Hours saved."
+    "hoursSaved": "Hours saved.",
+    "bookingsTitle": "Upcoming bookings",
+    "bookingsLead": "Who booked through your page. Tap the phone to message them on WhatsApp.",
+    "bookingsEmpty": "No bookings yet. Send your page link to your clients.",
+    "cancelBooking": "Cancel",
+    "cancelBookingLabel": "Cancel {name}'s booking on {when}",
+    "bookingCancelled": "Booking cancelled.",
+    "whatsappLabel": "Message {name} on WhatsApp"
   },
   "Weekdays": {
     "0": "Sunday",
@@ -100,7 +107,9 @@
     "noDeposit": "No deposit",
     "hours": "Opening hours",
     "closed": "Closed",
-    "bookingSoon": "Online booking is coming soon."
+    "lead": "Pick a service to see the free times.",
+    "book": "Book",
+    "bookLabel": "Book {name}"
   },
   "Errors": {
     "nameShort": "Use at least 2 characters.",
@@ -117,6 +126,40 @@
     "closesBeforeOpens": "Closing time must be after opening time.",
     "weekdaysRepeated": "A day appears twice in the week.",
     "generic": "Something went wrong. Please try again in a moment.",
-    "signedOut": "Your session ended. Please sign in again."
+    "signedOut": "Your session ended. Please sign in again.",
+    "phoneInvalid": "Type the number with the area code, like (11) 91234-5678.",
+    "slotTaken": "Someone just booked that time. Pick another one.",
+    "slotInvalid": "Pick a time from the list.",
+    "notFound": "This service is no longer available."
+  },
+  "Booking": {
+    "back": "Back to {name}",
+    "summary": "{duration} min · {price}",
+    "depositNote": "{deposit} deposit by Pix",
+    "chooseDay": "Pick a day",
+    "daysLabel": "Next 14 days",
+    "noSlotsDay": "no times",
+    "chooseTime": "Free times on {day}",
+    "noSlots": "No free times on this day. Pick another day.",
+    "noSlotsAtAll": "There are no free times in the next two weeks. Contact the business directly.",
+    "slotGone": "That time is no longer free. Pick another one.",
+    "detailsTitle": "Your details",
+    "chosen": "{service} on {when}",
+    "name": "Your name",
+    "phone": "WhatsApp number with area code",
+    "phoneHint": "Only so the business can reach you about this booking.",
+    "confirm": "Confirm booking",
+    "paymentSoon": "Paying the deposit by Pix is coming soon. For now, the time is held without payment.",
+    "doneTitle": "You are booked!",
+    "doneLead": "{name}, {business} is expecting you.",
+    "cancelledTitle": "This booking was cancelled",
+    "cancelledLead": "You can pick another time.",
+    "service": "Service",
+    "when": "When",
+    "price": "Price",
+    "deposit": "Deposit",
+    "addToCalendar": "Add to Google Calendar",
+    "bookAnother": "Book another time",
+    "calendarTitle": "{service} · {business}"
   }
 }
