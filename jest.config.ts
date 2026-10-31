@@ -7,8 +7,12 @@ const createJestConfig = nextJest({ dir: './' });
 const config: Config = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
-  testPathIgnorePatterns: ['/node_modules/', '/cypress/', '/.next/'],
+  moduleNameMapper: {
+    '^server-only$': '<rootDir>/test/server-only.js',
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  // Integration tests need a database; they run with jest.integration.config.ts.
+  testPathIgnorePatterns: ['/node_modules/', '/cypress/', '/.next/', '\\.int\\.test\\.ts$'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/generated/**', '!src/**/*.d.ts'],
 };
 
