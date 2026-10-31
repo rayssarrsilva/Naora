@@ -9,7 +9,9 @@
   },
   "Header": {
     "skip": "Skip to content",
-    "otherLocale": "Português"
+    "otherLocale": "Português",
+    "signIn": "Sign in",
+    "panel": "My dashboard"
   },
   "Home": {
     "status": "In progress · free beta coming soon",
@@ -31,5 +33,90 @@
   "NotFound": {
     "title": "Page not found",
     "back": "Back to the home page"
+  },
+  "SignIn": {
+    "title": "Sign in to Naora",
+    "lead": "Sign in to create your business page, add services and set your opening hours.",
+    "demo": "Sign in with a demo account",
+    "demoHint": "No sign-up: it creates an empty account just for you to try. All data is for demo only.",
+    "google": "Sign in with Google",
+    "noProviders": "Sign-in is not set up in this environment yet."
+  },
+  "Panel": {
+    "title": "My dashboard",
+    "signOut": "Sign out",
+    "demoBanner": "You are in a demo account. Try anything: nothing here is real.",
+    "onboardingTitle": "Create your business page",
+    "onboardingLead": "This is the link you will send to clients on Instagram and WhatsApp.",
+    "name": "Business name",
+    "namePlaceholder": "Ana's Studio",
+    "slug": "Page address",
+    "slugHint": "Lowercase letters, numbers and hyphens only. It will look like this: {url}",
+    "create": "Create page",
+    "publicLink": "Your public page",
+    "openPublic": "Open page",
+    "servicesTitle": "Services",
+    "servicesLead": "What clients can book. The deposit is paid by Pix to hold the time.",
+    "servicesEmpty": "No services yet. Add the first one below.",
+    "serviceName": "Service",
+    "serviceNamePlaceholder": "Women's haircut",
+    "duration": "Duration (minutes)",
+    "price": "Price (R$)",
+    "deposit": "Deposit (R$)",
+    "depositHint": "Use 0 for no deposit.",
+    "addService": "Add service",
+    "serviceAdded": "Service added.",
+    "delete": "Delete",
+    "deleteLabel": "Delete {name}",
+    "deleted": "Service deleted.",
+    "pause": "Pause",
+    "pauseLabel": "Pause {name}",
+    "resume": "Resume",
+    "resumeLabel": "Resume {name}",
+    "paused": "Paused",
+    "summary": "{duration} min · {price} · deposit {deposit}",
+    "hoursTitle": "Opening hours",
+    "hoursLead": "The days and times you work.",
+    "open": "Open",
+    "opensAt": "Opens at",
+    "closesAt": "Closes at",
+    "saveHours": "Save hours",
+    "hoursSaved": "Hours saved."
+  },
+  "Weekdays": {
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday"
+  },
+  "Public": {
+    "services": "Services",
+    "noServices": "This business has not added services yet.",
+    "duration": "{minutes} min",
+    "deposit": "{deposit} Pix deposit to hold your time",
+    "noDeposit": "No deposit",
+    "hours": "Opening hours",
+    "closed": "Closed",
+    "bookingSoon": "Online booking is coming soon."
+  },
+  "Errors": {
+    "nameShort": "Use at least 2 characters.",
+    "nameLong": "Use 60 characters at most.",
+    "slugInvalid": "Use 3 to 40 lowercase letters, numbers or hyphens, with no hyphen at the start or end.",
+    "slugTaken": "That address is taken. Try another one.",
+    "alreadyHasBusiness": "You already have a business.",
+    "durationInvalid": "Use a duration between 5 and 480 minutes.",
+    "durationStep": "Use steps of 5 minutes (30, 45, 60…).",
+    "priceInvalid": "Type an amount like 45 or 45.90.",
+    "depositInvalid": "Type an amount like 20 or 0.",
+    "depositTooHigh": "The deposit cannot be higher than the price.",
+    "timeInvalid": "Use the 09:30 format.",
+    "closesBeforeOpens": "Closing time must be after opening time.",
+    "weekdaysRepeated": "A day appears twice in the week.",
+    "generic": "Something went wrong. Please try again in a moment.",
+    "signedOut": "Your session ended. Please sign in again."
   }
 }

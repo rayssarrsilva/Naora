@@ -1,6 +1,6 @@
-// Naora · data model, Sprint 0.
-// Only the multi-tenant core every booking product needs: a business, its people and their role.
-// Services, schedules and appointments arrive after the validation interviews.
+// Naora · data model.
+// Multi-tenant: every row of business data belongs to exactly one Business, and every query
+// that reads or writes it goes through the owner's membership (src/lib/business/repository.ts).
 
 generator client {
   provider = "prisma-client"
@@ -16,24 +16,29 @@ enum Role {
   STAFF
 }
 
-/// A salon, barbershop or studio. Every row of business data belongs to exactly one.
+/// A salon, barbershop or studio.
 model Business {
-  id        String       @id @default(cuid())
+  id        String         @id @default(cuid())
   name      String
-  slug      String       @unique
-  timezone  String       @default("America/Sao_Paulo")
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  slug      String         @unique
+  timezone  String         @default("America/Sao_Paulo")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
   members   Membership[]
+  services  Service[]
+  hours     OpeningHours[]
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  memberships Membership[]
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  memberships   Membership[]
+  accounts      Account[]
 }
 
 /// Who works where, and with which permissions.
@@ -47,5 +52,55 @@ model Membership {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([businessId, userId])
+  @@index([userId])
+}
+
+/// Something a client can book: a haircut, a manicure, a training session.
+model Service {
+  id           String   @id @default(cuid())
+  businessId   String
+  name         String
+  durationMin  Int
+  /// Prices in cents (BRL), never floats.
+  priceCents   Int
+  depositCents Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+}
+
+/// When the business opens, one row per open weekday. Times are minutes after midnight, local time.
+model OpeningHours {
+  id         String   @id @default(cuid())
+  businessId String
+  /// 0 = Sunday … 6 = Saturday, like JavaScript's Date#getDay.
+  weekday    Int
+  opensAt    Int
+  closesAt   Int
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, weekday])
+}
+
+/// OAuth accounts (Google), managed by Auth.js.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
   @@index([userId])
 }

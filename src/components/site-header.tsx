@@ -19,6 +19,9 @@ export function SiteHeader() {
         <Link href="/" className="mr-auto font-display text-2xl no-underline">
           Naora
         </Link>
+        <Link href="/painel" className="font-semibold underline-offset-4 hover:underline">
+          {t('panel')}
+        </Link>
         <Link
           href="/"
           locale={other}

@@ -27,7 +27,8 @@ export function contentSecurityPolicy(nonce: string, dev = process.env.NODE_ENV 
     "object-src 'none'",
     "base-uri 'none'",
     // Payments will leave the site through a redirect, never through a form post.
-    "form-action 'self'",
+    // Google sign-in leaves the site through a redirect after the sign-in form.
+    "form-action 'self' https://accounts.google.com",
     "frame-ancestors 'none'",
     "manifest-src 'self'",
     "worker-src 'self'",

@@ -37,4 +37,14 @@ describe('ThemeToggle', () => {
     expect(localStorage.getItem('naora:theme')).toBe('dark');
     expect(screen.getByRole('button', { name: 'Usar tema claro' })).toBeInTheDocument();
   });
+
+  it('puts the saved theme back on <html> when React has reset the attribute', () => {
+    localStorage.setItem('naora:theme', 'dark');
+    renderToggle();
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(screen.getByRole('button', { name: 'Usar tema claro' })).toHaveAttribute(
+      'data-state',
+      'dark',
+    );
+  });
 });
