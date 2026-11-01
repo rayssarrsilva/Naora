@@ -39,7 +39,7 @@ Cypress.Commands.add('field', (label: string) =>
 
 /** Waits until React runs in the page; the theme toggle leaves "pending" when it does. */
 Cypress.Commands.add('waitForApp', () => {
-  cy.get('button[data-state]').should('not.have.attr', 'data-state', 'pending');
+  cy.get('header button[data-state]').should('not.have.attr', 'data-state', 'pending');
 });
 
 /** Signs in with a fresh one-click demo account and lands on the dashboard. */

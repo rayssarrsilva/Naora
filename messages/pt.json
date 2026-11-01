@@ -81,7 +81,14 @@
     "opensAt": "Abre às",
     "closesAt": "Fecha às",
     "saveHours": "Salvar horários",
-    "hoursSaved": "Horários salvos."
+    "hoursSaved": "Horários salvos.",
+    "bookingsTitle": "Próximos agendamentos",
+    "bookingsLead": "Quem marcou pela sua página. Toque no telefone para chamar no WhatsApp.",
+    "bookingsEmpty": "Nenhum agendamento ainda. Mande o link da sua página para as clientes.",
+    "cancelBooking": "Cancelar",
+    "cancelBookingLabel": "Cancelar o horário de {name} em {when}",
+    "bookingCancelled": "Agendamento cancelado.",
+    "whatsappLabel": "Chamar {name} no WhatsApp"
   },
   "Weekdays": {
     "0": "Domingo",
@@ -100,7 +107,9 @@
     "noDeposit": "Sem sinal",
     "hours": "Horário de funcionamento",
     "closed": "Fechado",
-    "bookingSoon": "O agendamento online chega em breve."
+    "lead": "Escolha um serviço para ver os horários livres.",
+    "book": "Agendar",
+    "bookLabel": "Agendar {name}"
   },
   "Errors": {
     "nameShort": "Use pelo menos 2 letras.",
@@ -117,6 +126,40 @@
     "closesBeforeOpens": "O horário de fechar tem que ser depois do de abrir.",
     "weekdaysRepeated": "Há um dia repetido na semana.",
     "generic": "Não deu certo. Tente de novo em instantes.",
-    "signedOut": "Sua sessão terminou. Entre de novo."
+    "signedOut": "Sua sessão terminou. Entre de novo.",
+    "phoneInvalid": "Digite o número com DDD, como (11) 91234-5678.",
+    "slotTaken": "Esse horário acabou de ser reservado por outra pessoa. Escolha outro.",
+    "slotInvalid": "Escolha um horário da lista.",
+    "notFound": "Esse serviço não está mais disponível."
+  },
+  "Booking": {
+    "back": "Voltar para {name}",
+    "summary": "{duration} min · {price}",
+    "depositNote": "Sinal de {deposit} no Pix",
+    "chooseDay": "Escolha o dia",
+    "daysLabel": "Próximos 14 dias",
+    "noSlotsDay": "sem horários",
+    "chooseTime": "Horários livres em {day}",
+    "noSlots": "Nenhum horário livre neste dia. Escolha outro dia.",
+    "noSlotsAtAll": "Não há horários livres nas próximas duas semanas. Fale direto com o negócio.",
+    "slotGone": "Esse horário não está mais livre. Escolha outro.",
+    "detailsTitle": "Seus dados",
+    "chosen": "{service} em {when}",
+    "name": "Seu nome",
+    "phone": "WhatsApp com DDD",
+    "phoneHint": "Só para o negócio falar com você sobre este horário.",
+    "confirm": "Confirmar agendamento",
+    "paymentSoon": "O pagamento do sinal no Pix chega em breve. Por enquanto, o horário fica reservado sem pagamento.",
+    "doneTitle": "Horário reservado!",
+    "doneLead": "{name}, te esperamos no {business}.",
+    "cancelledTitle": "Este agendamento foi cancelado",
+    "cancelledLead": "Se quiser, escolha outro horário.",
+    "service": "Serviço",
+    "when": "Quando",
+    "price": "Valor",
+    "deposit": "Sinal",
+    "addToCalendar": "Adicionar ao Google Agenda",
+    "bookAnother": "Agendar outro horário",
+    "calendarTitle": "{service} · {business}"
   }
 }

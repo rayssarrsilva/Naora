@@ -16,6 +16,11 @@ enum Role {
   STAFF
 }
 
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
 /// A salon, barbershop or studio.
 model Business {
   id        String         @id @default(cuid())
@@ -27,6 +32,7 @@ model Business {
   members   Membership[]
   services  Service[]
   hours     OpeningHours[]
+  bookings  Booking[]
 }
 
 model User {
@@ -67,7 +73,8 @@ model Service {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  bookings     Booking[]
 
   @@index([businessId])
 }
@@ -83,6 +90,32 @@ model OpeningHours {
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@unique([businessId, weekday])
+}
+
+/// A client's appointment. The service is copied at booking time, so editing or deleting the service
+/// later never changes what the client booked. Two confirmed bookings of the same business never
+/// overlap: createBooking checks and inserts under a per-business lock (src/lib/booking/repository.ts).
+model Booking {
+  id           String        @id @default(cuid())
+  businessId   String
+  serviceId    String?
+  serviceName  String
+  durationMin  Int
+  priceCents   Int
+  depositCents Int
+  clientName   String
+  /// Digits only, with the area code: 34991234567.
+  clientPhone  String
+  startsAt     DateTime
+  endsAt       DateTime
+  status       BookingStatus @default(CONFIRMED)
+  createdAt    DateTime      @default(now())
+  cancelledAt  DateTime?
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  service      Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, startsAt])
+  @@index([serviceId])
 }
 
 /// OAuth accounts (Google), managed by Auth.js.

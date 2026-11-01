@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { primaryLink } from '@/components/booking/styles';
+import { Link } from '@/i18n/navigation';
 import { formatReais } from '@/lib/business/money';
 import { publicBusiness } from '@/lib/business/repository';
 
@@ -25,7 +27,7 @@ export default async function PublicBusinessPage({ params }: { params: Params })
     <div className="mx-auto grid max-w-3xl gap-10 px-5 py-12">
       <div className="grid gap-2">
         <h1 className="text-display">{business.name}</h1>
-        <p className="text-text-secondary">{t('bookingSoon')}</p>
+        <p className="text-text-secondary">{t('lead')}</p>
       </div>
 
       <section aria-labelledby="services-title" className="grid gap-4">
@@ -38,19 +40,30 @@ export default async function PublicBusinessPage({ params }: { params: Params })
           <ul className="grid gap-3">
             {business.services.map((service) => (
               <li
-                key={service.name}
-                className="flex flex-wrap items-baseline gap-x-4 gap-y-1 rounded-xl border border-border-subtle p-4"
+                key={service.id}
+                className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border-subtle p-4"
               >
-                <span className="mr-auto font-semibold">{service.name}</span>
-                <span className="text-text-secondary">
-                  {t('duration', { minutes: service.durationMin })}
-                </span>
-                <span className="font-semibold">{money(service.priceCents)}</span>
-                <span className="w-full text-text-secondary">
-                  {service.depositCents > 0
-                    ? t('deposit', { deposit: money(service.depositCents) })
-                    : t('noDeposit')}
-                </span>
+                <div className="mr-auto grid gap-1">
+                  <p className="flex flex-wrap items-baseline gap-x-4">
+                    <span className="font-semibold">{service.name}</span>
+                    <span className="text-text-secondary">
+                      {t('duration', { minutes: service.durationMin })}
+                    </span>
+                    <span className="font-semibold">{money(service.priceCents)}</span>
+                  </p>
+                  <p className="text-text-secondary">
+                    {service.depositCents > 0
+                      ? t('deposit', { deposit: money(service.depositCents) })
+                      : t('noDeposit')}
+                  </p>
+                </div>
+                <Link
+                  href={`/b/${business.slug}/agendar/${service.id}`}
+                  aria-label={t('bookLabel', { name: service.name })}
+                  className={primaryLink}
+                >
+                  {t('book')}
+                </Link>
               </li>
             ))}
           </ul>

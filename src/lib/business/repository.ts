@@ -10,12 +10,14 @@ import type { ServiceData } from './schema';
  * response never reveals that someone else's data exists.
  */
 
-export type MyBusiness = { id: string; name: string; slug: string };
+export type MyBusiness = { id: string; name: string; slug: string; timezone: string };
+
+const myBusinessFields = { id: true, name: true, slug: true, timezone: true } as const;
 
 export async function businessForUser(userId: string): Promise<MyBusiness | null> {
   const membership = await db().membership.findFirst({
     where: { userId, role: 'OWNER' },
-    select: { business: { select: { id: true, name: true, slug: true } } },
+    select: { business: { select: myBusinessFields } },
     orderBy: { createdAt: 'asc' },
   });
   return membership?.business ?? null;
@@ -38,7 +40,7 @@ export async function createBusiness(
         members: { create: { userId, role: 'OWNER' } },
         hours: { create: toRows(defaultWeek()) },
       },
-      select: { id: true, name: true, slug: true },
+      select: myBusinessFields,
     });
     return { ok: true, business };
   } catch (error) {
@@ -158,11 +160,11 @@ export async function saveHours(userId: string, days: DayHours[]): Promise<boole
 export type PublicBusiness = {
   name: string;
   slug: string;
-  services: Omit<ServiceRow, 'active' | 'id'>[];
+  services: Omit<ServiceRow, 'active'>[];
   hours: DayHours[];
 };
 
-/** What anyone with the link sees: active services and opening hours, nothing else. */
+/** What anyone with the link sees: active services (with the id to book them) and opening hours. */
 export async function publicBusiness(slug: string): Promise<PublicBusiness | null> {
   const business = await db().business.findUnique({
     where: { slug },
@@ -172,7 +174,7 @@ export async function publicBusiness(slug: string): Promise<PublicBusiness | nul
   const [services, hours] = await Promise.all([
     db().service.findMany({
       where: { businessId: business.id, active: true },
-      select: { name: true, durationMin: true, priceCents: true, depositCents: true },
+      select: { id: true, name: true, durationMin: true, priceCents: true, depositCents: true },
       orderBy: { createdAt: 'asc' },
     }),
     getHours(business.id),

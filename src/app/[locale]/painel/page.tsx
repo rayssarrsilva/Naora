@@ -2,10 +2,14 @@ import { Button } from '@rayssarrsilva/ipe';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { auth } from '@/auth';
+import { type BookingItem, BookingsList } from '@/components/panel/bookings-list';
 import { HoursForm } from '@/components/panel/hours-form';
 import { OnboardingForm } from '@/components/panel/onboarding-form';
 import { ServicesManager } from '@/components/panel/services-manager';
 import { Link, redirect } from '@/i18n/navigation';
+import { formatWhen } from '@/lib/booking/format';
+import { upcomingBookings } from '@/lib/booking/repository';
+import { formatPhone } from '@/lib/booking/schema';
 import { businessForUser, getHours, listServices } from '@/lib/business/repository';
 import { siteUrl } from '@/lib/site';
 import { signOutAction } from './actions';
@@ -29,6 +33,16 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
   const t = await getTranslations('Panel');
   const business = await businessForUser(session.user.id);
   const origin = siteUrl().replace(/^https?:\/\//, '');
+  const bookings: BookingItem[] = business
+    ? (await upcomingBookings(session.user.id)).map((b) => ({
+        id: b.id,
+        when: formatWhen(b.startsAt, locale, business.timezone),
+        serviceName: b.serviceName,
+        clientName: b.clientName,
+        phone: formatPhone(b.clientPhone),
+        whatsapp: `https://wa.me/55${b.clientPhone}`,
+      }))
+    : [];
 
   return (
     <div className="mx-auto grid max-w-3xl gap-10 px-5 py-10">
@@ -72,6 +86,16 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
                 {t('openPublic')}
               </Link>
             </p>
+          </section>
+
+          <section aria-labelledby="bookings-title" className="grid gap-4">
+            <div className="grid gap-1">
+              <h2 id="bookings-title" className="text-heading-md">
+                {t('bookingsTitle')}
+              </h2>
+              <p className="text-text-secondary">{t('bookingsLead')}</p>
+            </div>
+            <BookingsList bookings={bookings} />
           </section>
 
           <section aria-labelledby="services-title" className="grid gap-4">

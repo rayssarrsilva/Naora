@@ -148,7 +148,8 @@ describe('publicBusiness', () => {
 
     const page = await publicBusiness('studio-ana');
     expect(page?.services.map((s) => s.name)).toEqual(['Corte']);
-    expect(page?.services[0]).not.toHaveProperty('id');
+    // The id is public now: it is what the booking link uses. Internal flags stay out.
+    expect(page?.services[0]).not.toHaveProperty('active');
     expect(await publicBusiness('nao-existe')).toBeNull();
   });
 });
