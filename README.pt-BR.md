@@ -39,6 +39,10 @@ Naora é "na hora" do jeito que a gente fala. É a promessa do produto: a client
 
 É um produto real, com pagamento real, feito primeiro para pequenos negócios de Uberaba. O raciocínio e as hipóteses a testar estão no [brief do produto](./docs/discovery/BRIEF.md) (em inglês).
 
+## Design
+
+As telas estão no [Figma](https://www.figma.com/design/o3irY2VOsGjlLt3fiAPTU0?node-id=56-697): página pública, agendamento, sinal no Pix e confirmação no celular, e o painel no desktop, nos temas claro e escuro. Foram feitas com os componentes do [Ipê Design System](https://github.com/rayssarrsilva/Ipe) e o tema da Naora em variáveis do Figma, mais componentes próprios da Naora (cabeçalho, botões de dia e horário, cartão de serviço, linha de agendamento).
+
 ## Stack
 
 | Camada    | Ferramentas                                                                                                              |
@@ -60,6 +64,10 @@ Todo pull request roda quatro jobs ([`ci.yml`](./.github/workflows/ci.yml)):
 | Banco     | Toda migração aplica num Postgres vazio, o `schema.prisma` não muda sem migração e os testes de integração passam nele, incluindo o **isolamento entre negócios** (um negócio nunca lê, altera ou apaga dados de outro) , **nenhum horário duplicado** (oito pedidos simultâneos para o mesmo horário, só um passa) e o **sinal no Pix** (horário guardado, expiração, pagamento atrasado, webhook, com as respostas do Mercado Pago simuladas) |
 | E2E e API | O build de produção, com Postgres de verdade, passa no Cypress (login, criação da página, serviços, horários, página pública, agendar, pagar o Pix da demo e cancelar; navegação, tema, teclado, WCAG 2.2 AA com axe nos dois temas e idiomas, 320px, cabeçalhos de segurança) e na coleção do Postman (health, cabeçalhos da API, redirecionamentos)                                                                                           |
 | Docker    | A imagem compila, migra, sobe saudável, conecta no banco e não roda como root                                                                                                                                                                                                                                                                                                                                                                   |
+
+## Publicação
+
+Render (Docker) para o app, Neon para o Postgres e um workflow do GitHub Actions para as migrações, todos em planos gratuitos que permitem uso comercial. Passo a passo (em inglês): [docs/deploy](./docs/deploy/README.md).
 
 ## Rodar localmente
 
