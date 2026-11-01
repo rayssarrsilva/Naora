@@ -1,6 +1,7 @@
 /**
- * Sprint 2 flow: a client books a free time on the public page, the time disappears for everyone
- * else, the professional sees the booking in the dashboard and can cancel it.
+ * Sprints 2 and 3: a client books a free time on the public page, pays the Pix deposit (simulated
+ * in a demo account), the time disappears for everyone else, and the professional sees the booking
+ * in the dashboard and can cancel it.
  */
 describe('Booking', () => {
   const times = 'section[aria-labelledby="time-title"] a';
@@ -44,8 +45,18 @@ describe('Booking', () => {
 
       cy.field('Seu nome').type('Bia Cypress');
       cy.field('WhatsApp com DDD').type('(11) 91234-5678');
+      cy.field('E-mail').type('bia@example.com');
       cy.contains('button', 'Confirmar agendamento').click();
+
+      // The deposit: a demo business shows a fake Pix and a button to simulate the payment.
+      cy.contains('h1', 'Falta só o sinal').should('be.visible');
+      cy.field('Pix copia e cola').invoke('val').should('contain', 'NAO-E-UM-PIX-DE-VERDADE');
+      cy.get('img[alt="QR Code do Pix"]').should('be.visible');
+      cy.checkPageA11y();
+      cy.contains('button', 'Simular pagamento').click();
+
       cy.contains('h1', 'Horário reservado!').should('be.visible');
+      cy.contains('dd', 'pago').should('be.visible');
       cy.get('@time').then((time) => cy.contains('dd', String(time)).should('be.visible'));
       cy.contains('a', 'Adicionar ao Google Agenda')
         .should('have.attr', 'href')
