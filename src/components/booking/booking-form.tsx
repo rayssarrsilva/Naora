@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input } from '@rayssarrsilva/ipe';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { createBookingAction } from '@/app/[locale]/b/[slug]/agendar/[serviceId]/actions';
@@ -20,10 +20,10 @@ export function BookingForm({
   startsAt: string;
 }) {
   const t = useTranslations('Booking');
-  const locale = useLocale();
   const errorText = useErrorText();
   const router = useRouter();
   const [error, setErrorMessage] = useState('');
+  const [leaving, setLeaving] = useState(false);
 
   const {
     register,
@@ -38,10 +38,14 @@ export function BookingForm({
     defaultValues: { serviceId, startsAt, name: '', phone: '' },
   });
 
-  // On success the server redirects to the confirmation page, so only failures come back here.
   async function submit() {
     setErrorMessage('');
-    const result = await createBookingAction(locale, slug, getValues());
+    const result = await createBookingAction(slug, getValues());
+    if (result.ok && 'bookingId' in result) {
+      setLeaving(true);
+      router.push(`/b/${slug}/agendado/${result.bookingId}`);
+      return;
+    }
     const general = applyServerErrors(result, setError);
     if (general) setErrorMessage(errorText(general) ?? '');
     // Someone else took the time: reload the list so it no longer offers it.
@@ -67,7 +71,7 @@ export function BookingForm({
         {...register('phone')}
       />
       <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" size="lg" loading={isSubmitting}>
+        <Button type="submit" size="lg" loading={isSubmitting || leaving}>
           {t('confirm')}
         </Button>
         <p role="alert">{error}</p>
