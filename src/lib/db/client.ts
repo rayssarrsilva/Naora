@@ -11,3 +11,9 @@ export function db() {
   globalForPrisma.prisma ??= new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
   return globalForPrisma.prisma;
 }
+
+/**
+ * Options for transactions that wait on a per-business lock: under a burst of requests for the
+ * same business, each one may wait for the others, so allow more than Prisma's 2s/5s defaults.
+ */
+export const lockedTransaction = { maxWait: 10_000, timeout: 15_000 };

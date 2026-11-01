@@ -19,20 +19,34 @@ enum Role {
 enum BookingStatus {
   CONFIRMED
   CANCELLED
+  /// Waiting for the Pix deposit. The time is held until holdUntil, then it is free again.
+  PENDING_PAYMENT
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  FAILED
 }
 
 /// A salon, barbershop or studio.
 model Business {
-  id        String         @id @default(cuid())
-  name      String
-  slug      String         @unique
-  timezone  String         @default("America/Sao_Paulo")
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  members   Membership[]
-  services  Service[]
-  hours     OpeningHours[]
-  bookings  Booking[]
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  timezone      String         @default("America/Sao_Paulo")
+  /// Created by a one-click demo account: deposits are simulated, never charged.
+  demo          Boolean        @default(false)
+  /// Mercado Pago access token of the business's own account, encrypted (AES-256-GCM).
+  mpAccessToken String?
+  mpConnectedAt DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  members       Membership[]
+  services      Service[]
+  hours         OpeningHours[]
+  bookings      Booking[]
+  payments      Payment[]
 }
 
 model User {
@@ -109,13 +123,41 @@ model Booking {
   startsAt     DateTime
   endsAt       DateTime
   status       BookingStatus @default(CONFIRMED)
+  /// While PENDING_PAYMENT, the time is held until this moment.
+  holdUntil    DateTime?
   createdAt    DateTime      @default(now())
   cancelledAt  DateTime?
+  payment      Payment?
   business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   service      Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
 
   @@index([businessId, startsAt])
   @@index([serviceId])
+}
+
+/// The Pix deposit of a booking. The status only changes after reading the payment from Mercado Pago
+/// with the business's own token; a notification alone never confirms anything.
+model Payment {
+  id                String        @id @default(cuid())
+  bookingId         String        @unique
+  businessId        String
+  /// "mercadopago", or "demo" for demo businesses.
+  provider          String
+  providerPaymentId String?
+  amountCents       Int
+  status            PaymentStatus @default(PENDING)
+  /// Pix "copia e cola" code; the QR code is drawn from it.
+  pixCode           String
+  ticketUrl         String?
+  expiresAt         DateTime
+  paidAt            DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  booking           Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  business          Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerPaymentId])
+  @@index([businessId])
 }
 
 /// OAuth accounts (Google), managed by Auth.js.

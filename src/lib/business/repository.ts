@@ -30,6 +30,7 @@ export type CreateBusinessResult =
 export async function createBusiness(
   userId: string,
   input: { name: string; slug: string },
+  options: { demo?: boolean } = {},
 ): Promise<CreateBusinessResult> {
   if (await businessForUser(userId)) return { ok: false, error: 'alreadyHasBusiness' };
   try {
@@ -37,6 +38,7 @@ export async function createBusiness(
       data: {
         name: input.name,
         slug: input.slug,
+        demo: options.demo ?? false,
         members: { create: { userId, role: 'OWNER' } },
         hours: { create: toRows(defaultWeek()) },
       },
@@ -180,4 +182,38 @@ export async function publicBusiness(slug: string): Promise<PublicBusiness | nul
     getHours(business.id),
   ]);
   return { name: business.name, slug: business.slug, services, hours };
+}
+
+export type PaymentSettings = { demo: boolean; connectedAt: Date | null };
+
+/** Whether the owner's business takes Pix deposits. The token itself never leaves the server. */
+export async function paymentSettings(userId: string): Promise<PaymentSettings | null> {
+  const business = await businessForUser(userId);
+  if (!business) return null;
+  const row = await db().business.findUnique({
+    where: { id: business.id },
+    select: { demo: true, mpConnectedAt: true },
+  });
+  return row ? { demo: row.demo, connectedAt: row.mpConnectedAt } : null;
+}
+
+/** Stores the already encrypted Mercado Pago token on the owner's business. */
+export async function saveMercadoPagoToken(userId: string, encrypted: string): Promise<boolean> {
+  const business = await businessForUser(userId);
+  if (!business) return false;
+  await db().business.update({
+    where: { id: business.id },
+    data: { mpAccessToken: encrypted, mpConnectedAt: new Date() },
+  });
+  return true;
+}
+
+export async function removeMercadoPagoToken(userId: string): Promise<boolean> {
+  const business = await businessForUser(userId);
+  if (!business) return false;
+  await db().business.update({
+    where: { id: business.id },
+    data: { mpAccessToken: null, mpConnectedAt: null },
+  });
+  return true;
 }

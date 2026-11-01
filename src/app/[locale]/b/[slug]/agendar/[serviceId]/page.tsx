@@ -5,7 +5,7 @@ import { BookingForm } from '@/components/booking/booking-form';
 import { choiceLink } from '@/components/booking/styles';
 import { Link } from '@/i18n/navigation';
 import { formatDayLong, formatDayShort, formatTime, formatWhen } from '@/lib/booking/format';
-import { availability, bookingContext } from '@/lib/booking/repository';
+import { availability, bookingContext, holdMinutes, needsDeposit } from '@/lib/booking/repository';
 import { formatReais } from '@/lib/business/money';
 
 type Params = Promise<{ locale: string; slug: string; serviceId: string }>;
@@ -136,9 +136,17 @@ export default async function BookingPage({
                 slug={slug}
                 serviceId={service.id}
                 startsAt={chosenSlot.toISOString()}
+                askEmail={needsDeposit(context)}
               />
               {service.depositCents > 0 && (
-                <p className="text-sm text-text-secondary">{t('paymentSoon')}</p>
+                <p className="text-sm text-text-secondary">
+                  {needsDeposit(context)
+                    ? t('depositNext', {
+                        deposit: money(service.depositCents),
+                        minutes: holdMinutes,
+                      })
+                    : t('depositAtBusiness')}
+                </p>
               )}
             </section>
           )}

@@ -88,7 +88,19 @@
     "cancelBooking": "Cancel",
     "cancelBookingLabel": "Cancel {name}'s booking on {when}",
     "bookingCancelled": "Booking cancelled.",
-    "whatsappLabel": "Message {name} on WhatsApp"
+    "whatsappLabel": "Message {name} on WhatsApp",
+    "awaitingPix": "Waiting for the Pix",
+    "paymentsTitle": "Pix deposit",
+    "paymentsLead": "Connect your Mercado Pago account: deposits go straight to it, never through Naora.",
+    "paymentsDemo": "In the demo account, the Pix is simulated: clients see the QR code and a button to simulate the payment.",
+    "paymentsOff": "Without a connected account, services with a deposit are booked without a charge, and you arrange the deposit with the client.",
+    "token": "Production access token",
+    "tokenHint": "On Mercado Pago: Your integrations › your application › Production credentials. It is stored encrypted.",
+    "connect": "Connect Mercado Pago",
+    "connected": "Mercado Pago connected on {date}.",
+    "disconnect": "Disconnect",
+    "connectedDone": "Account connected.",
+    "disconnectedDone": "Account disconnected."
   },
   "Weekdays": {
     "0": "Sunday",
@@ -130,7 +142,15 @@
     "phoneInvalid": "Type the number with the area code, like (11) 91234-5678.",
     "slotTaken": "Someone just booked that time. Pick another one.",
     "slotInvalid": "Pick a time from the list.",
-    "notFound": "This service is no longer available."
+    "notFound": "This service is no longer available.",
+    "emailInvalid": "Type a valid email.",
+    "emailRequired": "Type your email to get the Pix receipt.",
+    "paymentUnavailable": "Payments are unavailable right now. Try again in a moment.",
+    "notPaidYet": "The payment has not arrived yet. If you have paid, wait a few seconds.",
+    "tokenInvalid": "Paste the whole access token, starting with APP_USR-.",
+    "tokenRejected": "Mercado Pago did not accept this token. Check that it is the production one.",
+    "demoPayments": "In the demo account, the Pix is simulated.",
+    "paymentsOff": "Payments are not active on this server yet."
   },
   "Booking": {
     "back": "Back to {name}",
@@ -149,7 +169,6 @@
     "phone": "WhatsApp number with area code",
     "phoneHint": "Only so the business can reach you about this booking.",
     "confirm": "Confirm booking",
-    "paymentSoon": "Paying the deposit by Pix is coming soon. For now, the time is held without payment.",
     "doneTitle": "You are booked!",
     "doneLead": "{name}, {business} is expecting you.",
     "cancelledTitle": "This booking was cancelled",
@@ -160,6 +179,26 @@
     "deposit": "Deposit",
     "addToCalendar": "Add to Google Calendar",
     "bookAnother": "Book another time",
-    "calendarTitle": "{service} · {business}"
+    "calendarTitle": "{service} · {business}",
+    "email": "Email",
+    "emailHint": "Mercado Pago sends the Pix receipt to it.",
+    "depositNext": "After you confirm, you pay the {deposit} deposit by Pix. The time is held for {minutes} minutes.",
+    "depositAtBusiness": "The deposit is arranged directly with the business.",
+    "payTitle": "One step left: the deposit",
+    "payLead": "Pay {deposit} by Pix by {time} to secure the time. After that, it is released.",
+    "pixTitle": "Pix",
+    "demoPix": "Demo account: this Pix is fake and charges nothing. Use the Simulate payment button.",
+    "qrAlt": "Pix QR code",
+    "pixCode": "Pix copy and paste code",
+    "copy": "Copy code",
+    "copied": "Code copied. Paste it in your banking app.",
+    "copyFailed": "Could not copy. Select the code and copy it.",
+    "simulate": "Simulate payment",
+    "paid": "I have paid",
+    "ticket": "Open the Pix on Mercado Pago",
+    "pixHow": "Open your banking app, choose Pix and scan the QR code or paste the code. This page updates on its own when the payment arrives.",
+    "expiredTitle": "The time to pay ran out",
+    "expiredLead": "The time was released for others. You can pick again.",
+    "depositPaid": "paid"
   }
 }

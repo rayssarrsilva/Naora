@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@rayssarrsilva/ipe';
+import { Badge, Button } from '@rayssarrsilva/ipe';
 import { useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
 import { cancelBookingAction } from '@/app/[locale]/painel/actions';
@@ -14,6 +14,7 @@ export type BookingItem = {
   clientName: string;
   phone: string;
   whatsapp: string;
+  awaitingPayment: boolean;
 };
 
 export function BookingsList({ bookings }: { bookings: BookingItem[] }) {
@@ -41,7 +42,9 @@ export function BookingsList({ bookings }: { bookings: BookingItem[] }) {
               className="flex flex-wrap items-center gap-3 rounded-xl border border-border-subtle p-4"
             >
               <div className="mr-auto grid gap-1">
-                <p className="font-semibold">{booking.when}</p>
+                <p className="font-semibold">
+                  {booking.when} {booking.awaitingPayment && <Badge>{t('awaitingPix')}</Badge>}
+                </p>
                 <p>
                   {booking.serviceName} · {booking.clientName} ·{' '}
                   <a

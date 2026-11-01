@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import type { ActionResult } from '@/app/[locale]/painel/actions';
 import { createBooking } from '@/lib/booking/repository';
+import { refreshPayment, simulateDemoPayment } from '@/lib/payments/service';
 import { bookingSchema } from '@/lib/booking/schema';
 
 export type BookingActionResult = ActionResult | { ok: true; bookingId: string };
@@ -26,7 +27,37 @@ export async function createBookingAction(
     return { ok: false, fields };
   }
   const result = await createBooking(String(slug), parsed.data);
-  if (!result.ok) return { ok: false, error: result.error };
+  if (!result.ok) {
+    return result.error === 'emailRequired'
+      ? { ok: false, fields: { email: 'emailRequired' } }
+      : { ok: false, error: result.error };
+  }
   revalidatePath('/[locale]/painel', 'page');
   return { ok: true, bookingId: result.bookingId };
+}
+
+/** "Simulate payment", only on demo businesses: the server refuses it anywhere else. */
+export async function simulatePaymentAction(
+  slug: string,
+  bookingId: string,
+): Promise<ActionResult> {
+  if (!(await simulateDemoPayment(String(slug), String(bookingId)))) {
+    return { ok: false, error: 'generic' };
+  }
+  revalidatePath('/[locale]/painel', 'page');
+  return { ok: true };
+}
+
+/** "I have paid": asks Mercado Pago again, in case its notification has not arrived yet. */
+export async function checkPaymentAction(slug: string, bookingId: string): Promise<ActionResult> {
+  try {
+    const outcome = await refreshPayment(String(slug), String(bookingId));
+    if (outcome === 'confirmed' || outcome === 'alreadyConfirmed') {
+      revalidatePath('/[locale]/painel', 'page');
+      return { ok: true };
+    }
+    return { ok: false, error: outcome === 'pending' ? 'notPaidYet' : 'generic' };
+  } catch {
+    return { ok: false, error: 'paymentUnavailable' };
+  }
 }

@@ -82,3 +82,17 @@ function offsetMs(instant: Date, timeZone: string): number {
   const utc = Math.floor(instant.getTime() / 60_000) * 60_000;
   return local - utc;
 }
+
+/** "2026-11-02T09:30:00.000-03:00": the instant written in the zone's local time with its offset. */
+export function isoWithOffset(instant: Date, timeZone: string): string {
+  const p = parts(instant, timeZone);
+  const offsetMin = Math.round(offsetMs(instant, timeZone) / 60_000);
+  const sign = offsetMin < 0 ? '-' : '+';
+  const abs = Math.abs(offsetMin);
+  const seconds = pad(instant.getUTCSeconds());
+  const ms = String(instant.getUTCMilliseconds()).padStart(3, '0');
+  return (
+    `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}:${seconds}.${ms}` +
+    `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`
+  );
+}
