@@ -11,7 +11,7 @@
 
 </div>
 
-> **Status: Sprint 2 pronta.** A cliente agenda um horário livre na página do negócio, e duas clientes nunca ficam com o mesmo horário. O sinal no Pix é a próxima sprint. Feito em público; acompanhe pelo [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
+> **Status: Sprint 3 pronta.** A cliente agenda um horário livre e garante com um sinal no Pix, que cai direto na conta Mercado Pago do negócio. Próximo passo: colocar no ar, ciclo de QA e os primeiros negócios. Feito em público; acompanhe pelo [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
 
 ## Por que "Naora"?
 
@@ -26,11 +26,15 @@ Naora é "na hora" do jeito que a gente fala. É a promessa do produto: a client
 - **Página pública** com os serviços ativos e os horários, pronta para mandar no Instagram ou no WhatsApp.
 - **Agendamento online**: a cliente escolhe o serviço, o dia e um horário livre, deixa nome e WhatsApp e recebe a confirmação com o link "Adicionar ao Google Agenda". A cliente não precisa criar conta.
 - **Sem horário duplicado**: a verificação e a gravação acontecem numa transação com um lock do Postgres por negócio, então quando duas clientes clicam no mesmo horário ao mesmo tempo, só uma fica com ele. Os horários respeitam o funcionamento, a duração do serviço, uma hora de antecedência e o fuso do negócio.
+- **Sinal no Pix**: quando o serviço tem sinal, a cliente recebe o QR Code e o Pix copia e cola, e o horário fica guardado por 30 minutos. O agendamento é confirmado quando o pagamento cai; sem pagamento, o horário é liberado. A página atualiza sozinha.
+- **Conta Mercado Pago do próprio negócio**: a profissional conecta no painel e o dinheiro nunca passa pela Naora. O token é conferido com o Mercado Pago e guardado criptografado (AES-256-GCM).
+- **Confirmação confiável**: o aviso do Mercado Pago só faz a Naora ler o pagamento de novo com o token do negócio; um aviso forjado não muda nada. Um pagamento que chega depois de outra pessoa pegar o horário fica registrado, mas nunca gera horário duplicado.
+- **Conta demo** recebe um Pix de mentira e um botão "Simular pagamento", para qualquer pessoa testar o fluxo inteiro sem pagar.
 - **Próximos agendamentos** no painel, com link para o WhatsApp da cliente e um botão de cancelar que libera o horário.
 
 ## Para onde vai
 
-- **Clientes** pagam um pequeno sinal no Pix para garantir o horário, confirmado por webhook do Mercado Pago.
+- **No ar** com os primeiros negócios de Uberaba, ciclo de QA completo e depois um plano pago.
 - **Profissionais** veem o dia, a equipe e o que entrou num lugar só, e param de perder horário com falta sem aviso.
 
 É um produto real, com pagamento real, feito primeiro para pequenos negócios de Uberaba. O raciocínio e as hipóteses a testar estão no [brief do produto](./docs/discovery/BRIEF.md) (em inglês).
@@ -44,18 +48,18 @@ Naora é "na hora" do jeito que a gente fala. É a promessa do produto: a client
 | Dados     | PostgreSQL · Prisma 7 com migrações versionadas                                                                          |
 | Infra     | Docker (multi-stage, sem root) · Docker Compose · GitHub Actions                                                         |
 | Qualidade | Jest · Testing Library · Cypress · cypress-axe · Postman + Newman · ESLint · Prettier · commitlint                       |
-| Segurança | CSP com nonce por requisição · HSTS e cabeçalhos de segurança · CodeQL · Dependabot                                      |
+| Segurança | CSP com nonce por requisição · HSTS e cabeçalhos de segurança · AES-256-GCM para tokens guardados · CodeQL · Dependabot  |
 
 ## Como é verificado
 
 Todo pull request roda quatro jobs ([`ci.yml`](./.github/workflows/ci.yml)):
 
-| Job       | O que comprova                                                                                                                                                                                                                                                                                                                              |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Qualidade | Formatação, lint sem nenhum aviso, typecheck estrito, testes unitários e de componente com cobertura                                                                                                                                                                                                                                        |
-| Banco     | Toda migração aplica num Postgres vazio, o `schema.prisma` não muda sem migração e os testes de integração passam nele, incluindo o **isolamento entre negócios** (um negócio nunca lê, altera ou apaga dados de outro) e **nenhum horário duplicado** (oito pedidos simultâneos para o mesmo horário, só um passa)                         |
-| E2E e API | O build de produção, com Postgres de verdade, passa no Cypress (login, criação da página, serviços, horários, página pública, agendar e cancelar um horário; navegação, tema, teclado, WCAG 2.2 AA com axe nos dois temas e idiomas, 320px, cabeçalhos de segurança) e na coleção do Postman (health, cabeçalhos da API, redirecionamentos) |
-| Docker    | A imagem compila, migra, sobe saudável, conecta no banco e não roda como root                                                                                                                                                                                                                                                               |
+| Job       | O que comprova                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Qualidade | Formatação, lint sem nenhum aviso, typecheck estrito, testes unitários e de componente com cobertura                                                                                                                                                                                                                                                                                                                                            |
+| Banco     | Toda migração aplica num Postgres vazio, o `schema.prisma` não muda sem migração e os testes de integração passam nele, incluindo o **isolamento entre negócios** (um negócio nunca lê, altera ou apaga dados de outro) , **nenhum horário duplicado** (oito pedidos simultâneos para o mesmo horário, só um passa) e o **sinal no Pix** (horário guardado, expiração, pagamento atrasado, webhook, com as respostas do Mercado Pago simuladas) |
+| E2E e API | O build de produção, com Postgres de verdade, passa no Cypress (login, criação da página, serviços, horários, página pública, agendar, pagar o Pix da demo e cancelar; navegação, tema, teclado, WCAG 2.2 AA com axe nos dois temas e idiomas, 320px, cabeçalhos de segurança) e na coleção do Postman (health, cabeçalhos da API, redirecionamentos)                                                                                           |
+| Docker    | A imagem compila, migra, sobe saudável, conecta no banco e não roda como root                                                                                                                                                                                                                                                                                                                                                                   |
 
 ## Rodar localmente
 
@@ -76,7 +80,7 @@ Ou rode tudo como em produção: `docker compose up --build` (http://localhost:3
 1. **Sprint 0** · base: app, banco, Docker, testes, segurança, CI ✅
 2. **Sprint 1** · o negócio cria a sua página; serviços e horário de funcionamento ✅
 3. **Sprint 2** · a cliente agenda um horário livre; agendamento duplo é impossível ✅
-4. **Sprint 3** · sinal no Pix pelo Mercado Pago, confirmado por webhook
+4. **Sprint 3** · sinal no Pix pelo Mercado Pago, confirmado por webhook ✅
 5. **Beta** · primeiros negócios de Uberaba, ciclo de QA e o primeiro plano pago
 
 ## Contato
