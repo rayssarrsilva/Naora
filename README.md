@@ -39,6 +39,10 @@ Naora is how "na hora" sounds when you say it fast in Portuguese: "on time", "ri
 
 It is a real product, with real payments, built for small businesses in Uberaba, Brazil, first. The reasoning and the hypotheses to test are in the [product brief](./docs/discovery/BRIEF.md).
 
+## Design
+
+The screens are in [Figma](https://www.figma.com/design/o3irY2VOsGjlLt3fiAPTU0?node-id=56-697): public page, booking, Pix deposit and confirmation on mobile, and the dashboard on desktop, in light and dark. They are built with the [Ipê Design System](https://github.com/rayssarrsilva/Ipe) components and Naora's theme as Figma variables, plus Naora's own components (header, day and time chips, service card, booking row).
+
 ## Stack
 
 | Layer    | Tools                                                                                                                     |
@@ -60,6 +64,10 @@ Every pull request runs four jobs ([`ci.yml`](./.github/workflows/ci.yml)):
 | Database    | Every migration applies to an empty Postgres, `schema.prisma` has no change without a migration, and the integration tests pass against it, including **tenant isolation** (one business can never read, change or delete another's data) **no double booking** (eight simultaneous requests for one time, exactly one wins) and the **Pix deposit** (holds, expiry, late payments, webhooks, with Mercado Pago's answers simulated) |
 | E2E and API | The production build, on a real Postgres, passes Cypress (sign-in, onboarding, services, hours, the public page, booking a time, paying the demo Pix and cancelling; navigation, theme, keyboard, WCAG 2.2 AA with axe, 320px, security headers) and the Postman collection (health, API headers, redirects)                                                                                                                         |
 | Docker      | The image builds, migrates, starts healthy, reaches the database and does not run as root                                                                                                                                                                                                                                                                                                                                            |
+
+## Deploy
+
+Render (Docker) for the app, Neon for Postgres, and a GitHub Actions workflow for migrations, all on free plans that allow commercial use. Step by step: [docs/deploy](./docs/deploy/README.md).
 
 ## Run it locally
 
@@ -96,6 +104,7 @@ prisma/             schema and versioned migrations
 cypress/            end-to-end and accessibility tests
 tests/api/          Postman collection
 docs/discovery/     product brief and hypotheses
+docs/deploy/        how production is set up
 ```
 
 ## Roadmap
