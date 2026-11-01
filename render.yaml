@@ -1,0 +1,27 @@
+# Render Blueprint: the Naora web service, built from the Dockerfile.
+# Database: Neon (serverless Postgres); paste its pooled connection string in DATABASE_URL.
+# Migrations run from GitHub Actions (.github/workflows/migrate.yml), not at start-up.
+services:
+  - type: web
+    name: naora
+    runtime: docker
+    plan: free
+    region: virginia
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://naora.onrender.com
+      # 256 random bits in base64, generated once by Render.
+      - key: AUTH_SECRET
+        generateValue: true
+      # The same kind of value is exactly what PAYMENTS_KEY needs (32 bytes, base64).
+      - key: PAYMENTS_KEY
+        generateValue: true
+      - key: AUTH_GOOGLE_ID
+        sync: false
+      - key: AUTH_GOOGLE_SECRET
+        sync: false

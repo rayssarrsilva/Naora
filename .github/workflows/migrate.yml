@@ -1,0 +1,38 @@
+name: Migrate production database
+
+# Applies new Prisma migrations to the production database when they reach main,
+# or on demand from the Actions tab. Migrations are additive and run before or alongside
+# the new version on Render, so the running app never sees a column it does not know.
+on:
+  push:
+    branches: [main]
+    paths: ['prisma/migrations/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: prisma migrate deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --legacy-peer-deps
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+      - name: Apply migrations
+        run: npx prisma migrate deploy
+        env:
+          # Neon's direct (not pooled) connection string, saved as an environment secret.
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
