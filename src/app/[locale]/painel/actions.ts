@@ -2,15 +2,20 @@
 
 import { revalidatePath } from 'next/cache';
 import type { z } from 'zod';
-import { currentUserId, signOut } from '@/auth';
+import { auth, currentUserId, signOut } from '@/auth';
 import {
   addService,
   createBusiness,
   deleteService,
+  paymentSettings,
+  removeMercadoPagoToken,
+  saveMercadoPagoToken,
   saveHours,
   setServiceActive,
 } from '@/lib/business/repository';
 import { cancelBooking } from '@/lib/booking/repository';
+import { tokenPattern, tokenWorks } from '@/lib/payments/mercadopago';
+import { canStoreSecrets, encryptSecret } from '@/lib/security/secrets';
 import { businessSchema, hoursSchema, serviceSchema } from '@/lib/business/schema';
 
 /**
@@ -34,11 +39,13 @@ const refreshPanel = () => revalidatePath('/[locale]/painel', 'page');
 const refreshPublic = (slug?: string) => slug && revalidatePath(`/[locale]/b/${slug}`, 'page');
 
 export async function createBusinessAction(input: unknown): Promise<ActionResult> {
-  const userId = await currentUserId();
+  const session = await auth();
+  const userId = session?.user?.id;
   if (!userId) return { ok: false, error: 'signedOut' };
   const parsed = businessSchema.safeParse(input);
   if (!parsed.success) return fieldErrors(parsed.error);
-  const result = await createBusiness(userId, parsed.data);
+  // Demo accounts get a demo business: deposits are simulated there, never charged.
+  const result = await createBusiness(userId, parsed.data, { demo: session.user.isDemo });
   if (!result.ok) {
     return result.error === 'slugTaken'
       ? { ok: false, fields: { slug: 'slugTaken' } }
@@ -97,6 +104,38 @@ export async function cancelBookingAction(bookingId: string): Promise<ActionResu
   const userId = await currentUserId();
   if (!userId) return { ok: false, error: 'signedOut' };
   if (!(await cancelBooking(userId, String(bookingId)))) return { ok: false, error: 'generic' };
+  refreshPanel();
+  return { ok: true };
+}
+
+/**
+ * Connects the business's own Mercado Pago account. The token is checked with Mercado Pago, then
+ * stored encrypted; it is never sent back to the browser.
+ */
+export async function connectMercadoPagoAction(input: unknown): Promise<ActionResult> {
+  const userId = await currentUserId();
+  if (!userId) return { ok: false, error: 'signedOut' };
+  const token =
+    typeof input === 'object' && input && 'token' in input ? String(input.token).trim() : '';
+  if (!tokenPattern.test(token)) return { ok: false, fields: { token: 'tokenInvalid' } };
+  const settings = await paymentSettings(userId);
+  if (!settings) return { ok: false, error: 'generic' };
+  if (settings.demo) return { ok: false, error: 'demoPayments' };
+  if (!canStoreSecrets()) return { ok: false, error: 'paymentsOff' };
+  try {
+    if (!(await tokenWorks(token))) return { ok: false, fields: { token: 'tokenRejected' } };
+  } catch {
+    return { ok: false, error: 'paymentUnavailable' };
+  }
+  await saveMercadoPagoToken(userId, encryptSecret(token));
+  refreshPanel();
+  return { ok: true };
+}
+
+export async function disconnectMercadoPagoAction(): Promise<ActionResult> {
+  const userId = await currentUserId();
+  if (!userId) return { ok: false, error: 'signedOut' };
+  if (!(await removeMercadoPagoToken(userId))) return { ok: false, error: 'generic' };
   refreshPanel();
   return { ok: true };
 }

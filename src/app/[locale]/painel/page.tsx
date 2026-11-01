@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { auth } from '@/auth';
 import { type BookingItem, BookingsList } from '@/components/panel/bookings-list';
+import { PaymentsSettings } from '@/components/panel/payments-settings';
 import { HoursForm } from '@/components/panel/hours-form';
 import { OnboardingForm } from '@/components/panel/onboarding-form';
 import { ServicesManager } from '@/components/panel/services-manager';
@@ -10,7 +11,12 @@ import { Link, redirect } from '@/i18n/navigation';
 import { formatWhen } from '@/lib/booking/format';
 import { upcomingBookings } from '@/lib/booking/repository';
 import { formatPhone } from '@/lib/booking/schema';
-import { businessForUser, getHours, listServices } from '@/lib/business/repository';
+import {
+  businessForUser,
+  getHours,
+  listServices,
+  paymentSettings,
+} from '@/lib/business/repository';
 import { siteUrl } from '@/lib/site';
 import { signOutAction } from './actions';
 
@@ -41,8 +47,16 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
         clientName: b.clientName,
         phone: formatPhone(b.clientPhone),
         whatsapp: `https://wa.me/55${b.clientPhone}`,
+        awaitingPayment: b.awaitingPayment,
       }))
     : [];
+  const payments = business ? await paymentSettings(session.user.id) : null;
+  const connectedOn = payments?.connectedAt
+    ? new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'pt-BR', {
+        dateStyle: 'long',
+        timeZone: business!.timezone,
+      }).format(payments.connectedAt)
+    : null;
 
   return (
     <div className="mx-auto grid max-w-3xl gap-10 px-5 py-10">
@@ -106,6 +120,18 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
               <p className="text-text-secondary">{t('servicesLead')}</p>
             </div>
             <ServicesManager services={await listServices(business.id)} slug={business.slug} />
+          </section>
+
+          <section aria-labelledby="payments-title" className="grid gap-4">
+            <div className="grid gap-1">
+              <h2 id="payments-title" className="text-heading-md">
+                {t('paymentsTitle')}
+              </h2>
+              <p className="text-text-secondary">
+                {payments?.demo ? t('paymentsDemo') : t('paymentsLead')}
+              </p>
+            </div>
+            {!payments?.demo && <PaymentsSettings connectedOn={connectedOn} />}
           </section>
 
           <section aria-labelledby="hours-title" className="grid gap-4">
