@@ -14,10 +14,13 @@ export function BookingForm({
   slug,
   serviceId,
   startsAt,
+  askEmail,
 }: {
   slug: string;
   serviceId: string;
   startsAt: string;
+  /** Mercado Pago needs the payer's email for a Pix charge. */
+  askEmail: boolean;
 }) {
   const t = useTranslations('Booking');
   const errorText = useErrorText();
@@ -35,7 +38,7 @@ export function BookingForm({
     resolver: zodResolver(bookingSchema),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
-    defaultValues: { serviceId, startsAt, name: '', phone: '' },
+    defaultValues: { serviceId, startsAt, name: '', phone: '', email: '' },
   });
 
   async function submit() {
@@ -70,6 +73,16 @@ export function BookingForm({
         error={errorText(errors.phone?.message)}
         {...register('phone')}
       />
+      {askEmail && (
+        <Input
+          label={t('email')}
+          type="email"
+          autoComplete="email"
+          hint={t('emailHint')}
+          error={errorText(errors.email?.message)}
+          {...register('email')}
+        />
+      )}
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit" size="lg" loading={isSubmitting || leaving}>
           {t('confirm')}

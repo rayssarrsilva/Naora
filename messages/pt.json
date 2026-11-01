@@ -88,7 +88,19 @@
     "cancelBooking": "Cancelar",
     "cancelBookingLabel": "Cancelar o horário de {name} em {when}",
     "bookingCancelled": "Agendamento cancelado.",
-    "whatsappLabel": "Chamar {name} no WhatsApp"
+    "whatsappLabel": "Chamar {name} no WhatsApp",
+    "awaitingPix": "Aguardando o Pix",
+    "paymentsTitle": "Sinal no Pix",
+    "paymentsLead": "Conecte a sua conta do Mercado Pago: o sinal cai direto nela, sem passar pela Naora.",
+    "paymentsDemo": "Na conta demo, o Pix é simulado: a cliente vê o QR Code e um botão para simular o pagamento.",
+    "paymentsOff": "Sem conta conectada, os serviços com sinal são agendados sem cobrança, e o sinal é combinado com a cliente.",
+    "token": "Access Token de produção",
+    "tokenHint": "No Mercado Pago: Suas integrações › sua aplicação › Credenciais de produção. Ele é guardado criptografado.",
+    "connect": "Conectar Mercado Pago",
+    "connected": "Mercado Pago conectado em {date}.",
+    "disconnect": "Desconectar",
+    "connectedDone": "Conta conectada.",
+    "disconnectedDone": "Conta desconectada."
   },
   "Weekdays": {
     "0": "Domingo",
@@ -130,7 +142,15 @@
     "phoneInvalid": "Digite o número com DDD, como (11) 91234-5678.",
     "slotTaken": "Esse horário acabou de ser reservado por outra pessoa. Escolha outro.",
     "slotInvalid": "Escolha um horário da lista.",
-    "notFound": "Esse serviço não está mais disponível."
+    "notFound": "Esse serviço não está mais disponível.",
+    "emailInvalid": "Digite um e-mail válido.",
+    "emailRequired": "Digite o e-mail para receber o comprovante do Pix.",
+    "paymentUnavailable": "O pagamento está fora do ar agora. Tente de novo em instantes.",
+    "notPaidYet": "O pagamento ainda não chegou. Se você já pagou, espere alguns segundos.",
+    "tokenInvalid": "Cole o Access Token completo, que começa com APP_USR-.",
+    "tokenRejected": "O Mercado Pago não aceitou esse token. Confira se é o de produção.",
+    "demoPayments": "Na conta demo, o Pix é simulado.",
+    "paymentsOff": "Os pagamentos ainda não estão ativos neste servidor."
   },
   "Booking": {
     "back": "Voltar para {name}",
@@ -149,7 +169,6 @@
     "phone": "WhatsApp com DDD",
     "phoneHint": "Só para o negócio falar com você sobre este horário.",
     "confirm": "Confirmar agendamento",
-    "paymentSoon": "O pagamento do sinal no Pix chega em breve. Por enquanto, o horário fica reservado sem pagamento.",
     "doneTitle": "Horário reservado!",
     "doneLead": "{name}, te esperamos no {business}.",
     "cancelledTitle": "Este agendamento foi cancelado",
@@ -160,6 +179,26 @@
     "deposit": "Sinal",
     "addToCalendar": "Adicionar ao Google Agenda",
     "bookAnother": "Agendar outro horário",
-    "calendarTitle": "{service} · {business}"
+    "calendarTitle": "{service} · {business}",
+    "email": "E-mail",
+    "emailHint": "O Mercado Pago manda o comprovante do Pix para ele.",
+    "depositNext": "Depois de confirmar, você paga o sinal de {deposit} no Pix. O horário fica guardado por {minutes} minutos.",
+    "depositAtBusiness": "O sinal é combinado direto com o negócio.",
+    "payTitle": "Falta só o sinal",
+    "payLead": "Pague {deposit} no Pix até {time} para garantir o horário. Depois disso, ele volta a ficar livre.",
+    "pixTitle": "Pix",
+    "demoPix": "Conta demo: este Pix é de mentira e não cobra nada. Use o botão Simular pagamento.",
+    "qrAlt": "QR Code do Pix",
+    "pixCode": "Pix copia e cola",
+    "copy": "Copiar código",
+    "copied": "Código copiado. Cole no app do seu banco.",
+    "copyFailed": "Não deu para copiar. Selecione o código e copie.",
+    "simulate": "Simular pagamento",
+    "paid": "Já paguei",
+    "ticket": "Abrir o Pix no Mercado Pago",
+    "pixHow": "Abra o app do seu banco, escolha Pix e leia o QR Code ou cole o código. Esta página atualiza sozinha quando o pagamento cair.",
+    "expiredTitle": "O tempo para pagar acabou",
+    "expiredLead": "O horário foi liberado para outras pessoas. Se quiser, escolha de novo.",
+    "depositPaid": "pago"
   }
 }

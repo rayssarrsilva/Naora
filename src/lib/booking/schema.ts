@@ -26,6 +26,14 @@ export const bookingSchema = z.object({
       }
       return phone;
     }),
+  /** Only needed when the service has a Pix deposit: Mercado Pago asks for the payer's email. */
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .optional()
+    .transform((value) => value || undefined)
+    .pipe(z.email('emailInvalid').optional()),
 });
 export type BookingInput = z.input<typeof bookingSchema>;
 export type BookingData = z.output<typeof bookingSchema>;
