@@ -30,10 +30,12 @@ describe('Booking', () => {
       cy.get('a[aria-current="date"]').should('exist');
       cy.checkPageA11y();
 
-      cy.get(times).first().invoke('text').as('time');
+      // Static aliases keep the value. A plain alias re-runs its query when read, and by then the
+      // page has changed: the times list is gone and the URL is the confirmation page.
+      cy.get(times).first().invoke('text').as('time', { type: 'static' });
       cy.get(times).first().click();
       cy.contains('h2', 'Seus dados').should('be.visible');
-      cy.location('href').as('bookingUrl');
+      cy.location('href').as('bookingUrl', { type: 'static' });
 
       // Validation before anything reaches the server.
       cy.contains('button', 'Confirmar agendamento').click();
