@@ -21,6 +21,13 @@ services:
       # The same kind of value is exactly what PAYMENTS_KEY needs (32 bytes, base64).
       - key: PAYMENTS_KEY
         generateValue: true
+      # Naora's Mercado Pago application (OAuth + split) and its own token (Pro subscriptions).
+      - key: MP_CLIENT_ID
+        sync: false
+      - key: MP_CLIENT_SECRET
+        sync: false
+      - key: MP_PLATFORM_ACCESS_TOKEN
+        sync: false
       - key: AUTH_GOOGLE_ID
         sync: false
       - key: AUTH_GOOGLE_SECRET

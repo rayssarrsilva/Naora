@@ -23,6 +23,12 @@ enum BookingStatus {
   PENDING_PAYMENT
 }
 
+/// FREE: no monthly fee, Naora keeps a share of each Pix deposit. PRO: monthly subscription, no fee.
+enum Plan {
+  FREE
+  PRO
+}
+
 enum PaymentStatus {
   PENDING
   APPROVED
@@ -31,22 +37,28 @@ enum PaymentStatus {
 
 /// A salon, barbershop or studio.
 model Business {
-  id            String         @id @default(cuid())
-  name          String
-  slug          String         @unique
-  timezone      String         @default("America/Sao_Paulo")
-  /// Created by a one-click demo account: deposits are simulated, never charged.
-  demo          Boolean        @default(false)
-  /// Mercado Pago access token of the business's own account, encrypted (AES-256-GCM).
-  mpAccessToken String?
-  mpConnectedAt DateTime?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  members       Membership[]
-  services      Service[]
-  hours         OpeningHours[]
-  bookings      Booking[]
-  payments      Payment[]
+  id                String         @id @default(cuid())
+  name              String
+  slug              String         @unique
+  timezone          String         @default("America/Sao_Paulo")
+  /// Created by a one-click demo account: deposits and the Pro plan are simulated, never charged.
+  demo              Boolean        @default(false)
+  plan              Plan           @default(FREE)
+  /// Mercado Pago subscription (preapproval) that keeps the business on Pro.
+  proSubscriptionId String?        @unique
+  /// The business's Mercado Pago account, connected with OAuth. Tokens are encrypted (AES-256-GCM).
+  mpUserId          String?
+  mpAccessToken     String?
+  mpRefreshToken    String?
+  mpTokenExpiresAt  DateTime?
+  mpConnectedAt     DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  members           Membership[]
+  services          Service[]
+  hours             OpeningHours[]
+  bookings          Booking[]
+  payments          Payment[]
 }
 
 model User {
@@ -145,6 +157,8 @@ model Payment {
   provider          String
   providerPaymentId String?
   amountCents       Int
+  /// Naora's share of this deposit (FREE plan), collected by Mercado Pago's split.
+  feeCents          Int           @default(0)
   status            PaymentStatus @default(PENDING)
   /// Pix "copia e cola" code; the QR code is drawn from it.
   pixCode           String

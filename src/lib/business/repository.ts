@@ -184,36 +184,48 @@ export async function publicBusiness(slug: string): Promise<PublicBusiness | nul
   return { name: business.name, slug: business.slug, services, hours };
 }
 
-export type PaymentSettings = { demo: boolean; connectedAt: Date | null };
+export type PaymentSettings = { demo: boolean; connectedAt: Date | null; accountId: string | null };
 
-/** Whether the owner's business takes Pix deposits. The token itself never leaves the server. */
+/** Whether the owner's business takes Pix deposits. The tokens themselves never leave the server. */
 export async function paymentSettings(userId: string): Promise<PaymentSettings | null> {
   const business = await businessForUser(userId);
   if (!business) return null;
   const row = await db().business.findUnique({
     where: { id: business.id },
-    select: { demo: true, mpConnectedAt: true },
+    select: { demo: true, mpConnectedAt: true, mpUserId: true },
   });
-  return row ? { demo: row.demo, connectedAt: row.mpConnectedAt } : null;
+  return row ? { demo: row.demo, connectedAt: row.mpConnectedAt, accountId: row.mpUserId } : null;
 }
 
-/** Stores the already encrypted Mercado Pago token on the owner's business. */
-export async function saveMercadoPagoToken(userId: string, encrypted: string): Promise<boolean> {
+/** Stores the business's Mercado Pago connection. Tokens arrive already encrypted. */
+export async function saveMercadoPagoConnection(
+  businessId: string,
+  connection: { userId: string; accessToken: string; refreshToken: string; expiresAt: Date },
+): Promise<void> {
+  await db().business.update({
+    where: { id: businessId },
+    data: {
+      mpUserId: connection.userId,
+      mpAccessToken: connection.accessToken,
+      mpRefreshToken: connection.refreshToken,
+      mpTokenExpiresAt: connection.expiresAt,
+      mpConnectedAt: new Date(),
+    },
+  });
+}
+
+export async function removeMercadoPagoConnection(userId: string): Promise<boolean> {
   const business = await businessForUser(userId);
   if (!business) return false;
   await db().business.update({
     where: { id: business.id },
-    data: { mpAccessToken: encrypted, mpConnectedAt: new Date() },
-  });
-  return true;
-}
-
-export async function removeMercadoPagoToken(userId: string): Promise<boolean> {
-  const business = await businessForUser(userId);
-  if (!business) return false;
-  await db().business.update({
-    where: { id: business.id },
-    data: { mpAccessToken: null, mpConnectedAt: null },
+    data: {
+      mpUserId: null,
+      mpAccessToken: null,
+      mpRefreshToken: null,
+      mpTokenExpiresAt: null,
+      mpConnectedAt: null,
+    },
   });
   return true;
 }

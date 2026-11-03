@@ -1,9 +1,11 @@
 import 'server-only';
 import { isoWithOffset } from '@/lib/booking/time';
 import { db, lockedTransaction } from '@/lib/db/client';
-import { decryptSecret } from '@/lib/security/secrets';
+import { feeFor } from '@/lib/billing/pricing';
+import { decryptSecret, encryptSecret } from '@/lib/security/secrets';
 import { siteUrl } from '@/lib/site';
-import { createPixCharge, getPayment } from './mercadopago';
+import { oauthApp } from './config';
+import { createPixCharge, getPayment, refreshTokens } from './mercadopago';
 
 /**
  * The Pix deposit of a booking. Two providers:
@@ -28,20 +30,59 @@ export type DepositRequest = {
 export const demoPixCode = (bookingId: string) =>
   `NAORA-DEMO-PIX-${bookingId}-NAO-E-UM-PIX-DE-VERDADE`;
 
-/** Creates the charge and stores it. False when it could not be created. */
+/** Refresh the business's token when it has less than this left (it lasts 180 days). */
+const refreshMargin = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * The business's Mercado Pago access token, refreshed first when it is about to expire. Null when
+ * the business has not connected its account.
+ */
+export async function businessAccessToken(
+  businessId: string,
+  fetchImpl: typeof fetch = fetch,
+  now = new Date(),
+): Promise<string | null> {
+  const business = await db().business.findUnique({
+    where: { id: businessId },
+    select: { mpAccessToken: true, mpRefreshToken: true, mpTokenExpiresAt: true },
+  });
+  if (!business?.mpAccessToken) return null;
+  const app = oauthApp();
+  const expiring =
+    business.mpTokenExpiresAt &&
+    business.mpTokenExpiresAt.getTime() - now.getTime() < refreshMargin;
+  if (!expiring || !business.mpRefreshToken || !app) return decryptSecret(business.mpAccessToken);
+  const fresh = await refreshTokens(app, decryptSecret(business.mpRefreshToken), fetchImpl, now);
+  await db().business.update({
+    where: { id: businessId },
+    data: {
+      mpAccessToken: encryptSecret(fresh.accessToken),
+      mpRefreshToken: encryptSecret(fresh.refreshToken),
+      mpTokenExpiresAt: fresh.expiresAt,
+    },
+  });
+  return fresh.accessToken;
+}
+
+/**
+ * Creates the charge and stores it. False when it could not be created. On the Free plan the
+ * charge carries Naora's share as Mercado Pago's application fee; demo businesses record the same
+ * share, simulated.
+ */
 export async function startDeposit(
   request: DepositRequest,
   fetchImpl: typeof fetch = fetch,
 ): Promise<boolean> {
   const business = await db().business.findUnique({
     where: { id: request.businessId },
-    select: { demo: true, mpAccessToken: true },
+    select: { demo: true, plan: true, mpAccessToken: true },
   });
   if (!business) return false;
   const base = {
     bookingId: request.bookingId,
     businessId: request.businessId,
     amountCents: request.amountCents,
+    feeCents: feeFor(request.amountCents, business.plan),
     expiresAt: request.expiresAt,
   };
 
@@ -54,9 +95,12 @@ export async function startDeposit(
   if (!business.mpAccessToken) return false;
 
   try {
+    const accessToken = await businessAccessToken(request.businessId, fetchImpl);
+    if (!accessToken) return false;
     const charge = await createPixCharge(
       {
-        accessToken: decryptSecret(business.mpAccessToken),
+        accessToken,
+        applicationFeeCents: base.feeCents,
         amountCents: request.amountCents,
         description: request.description,
         payerEmail: request.payerEmail,
@@ -155,15 +199,13 @@ export async function syncMercadoPagoPayment(
 ): Promise<SyncOutcome> {
   const payment = await db().payment.findFirst({
     where: { provider: 'mercadopago', providerPaymentId, businessId },
-    select: { id: true, bookingId: true, business: { select: { mpAccessToken: true } } },
+    select: { id: true, bookingId: true },
   });
-  if (!payment?.business.mpAccessToken) return 'ignored';
+  if (!payment) return 'ignored';
+  const accessToken = await businessAccessToken(businessId, fetchImpl);
+  if (!accessToken) return 'ignored';
 
-  const remote = await getPayment(
-    decryptSecret(payment.business.mpAccessToken),
-    providerPaymentId,
-    fetchImpl,
-  );
+  const remote = await getPayment(accessToken, providerPaymentId, fetchImpl);
   if (remote.externalReference && remote.externalReference !== payment.bookingId) return 'ignored';
   if (remote.status === 'approved') return markPaid(payment.id);
   if (remote.status === 'failed') {

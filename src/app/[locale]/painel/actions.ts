@@ -7,15 +7,12 @@ import {
   addService,
   createBusiness,
   deleteService,
-  paymentSettings,
-  removeMercadoPagoToken,
-  saveMercadoPagoToken,
+  removeMercadoPagoConnection,
   saveHours,
   setServiceActive,
 } from '@/lib/business/repository';
 import { cancelBooking } from '@/lib/booking/repository';
-import { tokenPattern, tokenWorks } from '@/lib/payments/mercadopago';
-import { canStoreSecrets, encryptSecret } from '@/lib/security/secrets';
+import { cancelPro, subscribePro } from '@/lib/billing/service';
 import { businessSchema, hoursSchema, serviceSchema } from '@/lib/business/schema';
 
 /**
@@ -108,26 +105,33 @@ export async function cancelBookingAction(bookingId: string): Promise<ActionResu
   return { ok: true };
 }
 
+export type SubscribeActionResult = ActionResult | { ok: true; checkoutUrl: string | null };
+
 /**
- * Connects the business's own Mercado Pago account. The token is checked with Mercado Pago, then
- * stored encrypted; it is never sent back to the browser.
+ * Pro: returns Mercado Pago's checkout link for the monthly subscription (the browser goes there),
+ * or null for demo businesses, which switch at once without any charge.
  */
-export async function connectMercadoPagoAction(input: unknown): Promise<ActionResult> {
+export async function subscribeProAction(locale: string): Promise<SubscribeActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: 'signedOut' };
+  const result = await subscribePro(
+    session.user.id,
+    String(session.user.email ?? ''),
+    locale === 'en' ? 'en' : 'pt',
+  );
+  if (!result.ok) return { ok: false, error: result.error };
+  refreshPanel();
+  return result;
+}
+
+export async function cancelProAction(): Promise<ActionResult> {
   const userId = await currentUserId();
   if (!userId) return { ok: false, error: 'signedOut' };
-  const token =
-    typeof input === 'object' && input && 'token' in input ? String(input.token).trim() : '';
-  if (!tokenPattern.test(token)) return { ok: false, fields: { token: 'tokenInvalid' } };
-  const settings = await paymentSettings(userId);
-  if (!settings) return { ok: false, error: 'generic' };
-  if (settings.demo) return { ok: false, error: 'demoPayments' };
-  if (!canStoreSecrets()) return { ok: false, error: 'paymentsOff' };
   try {
-    if (!(await tokenWorks(token))) return { ok: false, fields: { token: 'tokenRejected' } };
+    if (!(await cancelPro(userId))) return { ok: false, error: 'generic' };
   } catch {
     return { ok: false, error: 'paymentUnavailable' };
   }
-  await saveMercadoPagoToken(userId, encryptSecret(token));
   refreshPanel();
   return { ok: true };
 }
@@ -135,7 +139,7 @@ export async function connectMercadoPagoAction(input: unknown): Promise<ActionRe
 export async function disconnectMercadoPagoAction(): Promise<ActionResult> {
   const userId = await currentUserId();
   if (!userId) return { ok: false, error: 'signedOut' };
-  if (!(await removeMercadoPagoToken(userId))) return { ok: false, error: 'generic' };
+  if (!(await removeMercadoPagoConnection(userId))) return { ok: false, error: 'generic' };
   refreshPanel();
   return { ok: true };
 }

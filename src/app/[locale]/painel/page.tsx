@@ -4,10 +4,13 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { auth } from '@/auth';
 import { type BookingItem, BookingsList } from '@/components/panel/bookings-list';
 import { PaymentsSettings } from '@/components/panel/payments-settings';
+import { type PlanView, PlanSettings } from '@/components/panel/plan-settings';
 import { HoursForm } from '@/components/panel/hours-form';
 import { OnboardingForm } from '@/components/panel/onboarding-form';
 import { ServicesManager } from '@/components/panel/services-manager';
 import { Link, redirect } from '@/i18n/navigation';
+import { breakEven } from '@/lib/billing/pricing';
+import { billingOverview } from '@/lib/billing/service';
 import { formatWhen } from '@/lib/booking/format';
 import { upcomingBookings } from '@/lib/booking/repository';
 import { formatPhone } from '@/lib/booking/schema';
@@ -17,6 +20,7 @@ import {
   listServices,
   paymentSettings,
 } from '@/lib/business/repository';
+import { oauthApp } from '@/lib/payments/config';
 import { siteUrl } from '@/lib/site';
 import { signOutAction } from './actions';
 
@@ -30,8 +34,17 @@ export async function generateMetadata({
   return { title: t('title'), robots: { index: false } };
 }
 
-export default async function PanelPage({ params }: { params: Promise<{ locale: string }> }) {
+const notices = ['connected', 'error', 'unavailable'] as const;
+
+export default async function PanelPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ mp?: string; pro?: string }>;
+}) {
   const { locale } = await params;
+  const query = await searchParams;
   setRequestLocale(locale);
   const session = await auth();
   if (!session?.user?.id) return redirect({ href: '/entrar', locale });
@@ -57,6 +70,18 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
         timeZone: business!.timezone,
       }).format(payments.connectedAt)
     : null;
+  const services = business ? await listServices(business.id) : [];
+  const overview = business ? await billingOverview(session.user.id) : null;
+  const deposits = services
+    .filter((s) => s.active && s.depositCents > 0)
+    .map((s) => s.depositCents);
+  const planView: PlanView | null = overview && {
+    ...overview,
+    breakEven: deposits.length
+      ? breakEven(Math.round(deposits.reduce((a, b) => a + b, 0) / deposits.length))
+      : null,
+  };
+  const mpNotice = notices.find((n) => n === query.mp);
 
   return (
     <div className="mx-auto grid max-w-3xl gap-10 px-5 py-10">
@@ -119,7 +144,7 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
               </h2>
               <p className="text-text-secondary">{t('servicesLead')}</p>
             </div>
-            <ServicesManager services={await listServices(business.id)} slug={business.slug} />
+            <ServicesManager services={services} slug={business.slug} />
           </section>
 
           <section aria-labelledby="payments-title" className="grid gap-4">
@@ -131,8 +156,30 @@ export default async function PanelPage({ params }: { params: Promise<{ locale: 
                 {payments?.demo ? t('paymentsDemo') : t('paymentsLead')}
               </p>
             </div>
-            {!payments?.demo && <PaymentsSettings connectedOn={connectedOn} />}
+            {mpNotice && <p role="status">{t(`mp_${mpNotice}`)}</p>}
+            {!payments?.demo && (
+              <PaymentsSettings
+                connectedOn={connectedOn}
+                accountId={payments?.accountId ?? null}
+                available={oauthApp() !== null}
+              />
+            )}
           </section>
+
+          {planView && (
+            <section aria-labelledby="plan-title" className="grid gap-4">
+              <div className="grid gap-1">
+                <h2 id="plan-title" className="text-heading-md">
+                  {t('planTitle')}
+                </h2>
+                <p className="text-text-secondary">{t('planLead')}</p>
+              </div>
+              {query.pro === '1' && planView.plan !== 'PRO' && (
+                <p role="status">{t('proProcessing')}</p>
+              )}
+              <PlanSettings view={planView} />
+            </section>
+          )}
 
           <section aria-labelledby="hours-title" className="grid gap-4">
             <div className="grid gap-1">

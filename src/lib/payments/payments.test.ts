@@ -3,13 +3,20 @@
  */
 import { isoWithOffset } from '@/lib/booking/time';
 import { decryptSecret, encryptSecret } from '@/lib/security/secrets';
+import { breakEven, feeFor } from '@/lib/billing/pricing';
 import {
+  authorizeUrl,
+  cancelSubscription,
   createPixCharge,
+  createSubscription,
+  exchangeCode,
   getPayment,
+  getSubscription,
   mapStatus,
   MercadoPagoError,
-  tokenWorks,
+  refreshTokens,
 } from './mercadopago';
+import { readState, signState } from './oauth-state';
 
 const key = Buffer.alloc(32, 7).toString('base64');
 
@@ -140,10 +147,18 @@ describe('Mercado Pago client', () => {
     expect(mapStatus(from)).toBe(to);
   });
 
-  it('tells a rejected token from a Mercado Pago outage', async () => {
-    expect(await tokenWorks('APP_USR-x', fakeFetch(200, { id: 1 }))).toBe(true);
-    expect(await tokenWorks('APP_USR-x', fakeFetch(401, {}))).toBe(false);
-    await expect(tokenWorks('APP_USR-x', fakeFetch(503, {}))).rejects.toThrow(MercadoPagoError);
+  it("sends Naora's share as the application fee, in reais, only when there is one", async () => {
+    const answer = {
+      id: 1,
+      status: 'pending',
+      point_of_interaction: { transaction_data: { qr_code: 'PIX' } },
+    };
+    const withFee = fakeFetch(201, answer);
+    await createPixCharge({ ...request, applicationFeeCents: 158 }, withFee);
+    expect(JSON.parse(withFee.mock.calls[0][1].body).application_fee).toBe(1.58);
+    const noFee = fakeFetch(201, answer);
+    await createPixCharge({ ...request, applicationFeeCents: 0 }, noFee);
+    expect(JSON.parse(noFee.mock.calls[0][1].body)).not.toHaveProperty('application_fee');
   });
 });
 
@@ -155,5 +170,156 @@ describe('isoWithOffset', () => {
     expect(isoWithOffset(new Date('2026-07-01T12:00:00.000Z'), 'Europe/Lisbon')).toBe(
       '2026-07-01T13:00:00.000+01:00',
     );
+  });
+});
+
+describe('pricing', () => {
+  it('keeps 15% of the deposit on Free and nothing on Pro', () => {
+    expect(feeFor(2400, 'FREE')).toBe(360);
+    expect(feeFor(1050, 'FREE')).toBe(158); // 157.5 rounds to the nearest cent
+    expect(feeFor(2400, 'PRO')).toBe(0);
+    expect(feeFor(0, 'FREE')).toBe(0);
+  });
+
+  it('tells after how many deposits Pro is cheaper', () => {
+    expect(breakEven(2400)).toBe(12); // R$ 39,90 / R$ 3,60
+    expect(breakEven(0)).toBeNull();
+  });
+});
+
+describe('Mercado Pago OAuth', () => {
+  const app = {
+    clientId: '123',
+    clientSecret: 'shh',
+    redirectUri: 'https://naora.app/api/mercadopago/callback',
+  };
+
+  it('sends the owner to Mercado Pago with the state and the exact redirect address', () => {
+    const url = new URL(authorizeUrl(app, 'the-state'));
+    expect(url.origin + url.pathname).toBe('https://auth.mercadopago.com/authorization');
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      client_id: '123',
+      response_type: 'code',
+      platform_id: 'mp',
+      state: 'the-state',
+      redirect_uri: 'https://naora.app/api/mercadopago/callback',
+    });
+  });
+
+  it('trades the code for tokens and works out when they expire', async () => {
+    const now = new Date('2026-11-03T12:00:00Z');
+    const fetchImpl = fakeFetch(200, {
+      access_token: 'APP_USR-seller',
+      refresh_token: 'TG-refresh',
+      user_id: 98765,
+      expires_in: 15552000,
+    });
+    expect(await exchangeCode(app, 'TG-code', fetchImpl, now)).toEqual({
+      accessToken: 'APP_USR-seller',
+      refreshToken: 'TG-refresh',
+      userId: '98765',
+      expiresAt: new Date('2027-05-02T12:00:00Z'),
+    });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.mercadopago.com/oauth/token');
+    expect(JSON.parse(init.body)).toEqual({
+      client_id: '123',
+      client_secret: 'shh',
+      grant_type: 'authorization_code',
+      code: 'TG-code',
+      redirect_uri: 'https://naora.app/api/mercadopago/callback',
+    });
+  });
+
+  it('refreshes with the refresh token', async () => {
+    const fetchImpl = fakeFetch(200, {
+      access_token: 'APP_USR-new',
+      refresh_token: 'TG-new',
+      user_id: 1,
+    });
+    await refreshTokens(app, 'TG-old', fetchImpl);
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toEqual({
+      client_id: '123',
+      client_secret: 'shh',
+      grant_type: 'refresh_token',
+      refresh_token: 'TG-old',
+    });
+  });
+
+  it('accepts only its own, fresh state, in the browser that started it', () => {
+    const now = Date.parse('2026-11-03T12:00:00Z');
+    const state = signState(
+      { businessId: 'biz', nonce: 'n1', locale: 'pt', exp: now + 600_000 },
+      'secret',
+    );
+    expect(readState(state, 'n1', 'secret', now)).toMatchObject({
+      businessId: 'biz',
+      locale: 'pt',
+    });
+    expect(readState(state, 'other-cookie', 'secret', now)).toBeNull();
+    expect(readState(state, undefined, 'secret', now)).toBeNull();
+    expect(readState(state, 'n1', 'another-secret', now)).toBeNull();
+    expect(readState(state, 'n1', 'secret', now + 600_001)).toBeNull();
+    const [payload, sig] = state.split('.');
+    const forged = Buffer.from(
+      JSON.stringify({ businessId: 'victim', nonce: 'n1', locale: 'pt', exp: now + 600_000 }),
+    ).toString('base64url');
+    expect(readState(`${forged}.${sig}`, 'n1', 'secret', now)).toBeNull();
+    expect(payload).toBeTruthy();
+  });
+});
+
+describe('Pro subscription', () => {
+  it("creates a monthly subscription on Naora's account and returns its checkout link", async () => {
+    const fetchImpl = fakeFetch(201, {
+      id: 'sub-1',
+      init_point: 'https://mercadopago.com.br/subscriptions/checkout?x=1',
+      status: 'pending',
+    });
+    expect(
+      await createSubscription(
+        {
+          accessToken: 'APP_USR-naora',
+          reason: 'Naora Pro',
+          amountCents: 3990,
+          payerEmail: 'ana@example.com',
+          externalReference: 'biz',
+          backUrl: 'https://naora.app/pt/painel?pro=1',
+        },
+        fetchImpl,
+      ),
+    ).toEqual({ id: 'sub-1', initPoint: 'https://mercadopago.com.br/subscriptions/checkout?x=1' });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.mercadopago.com/preapproval');
+    expect(init.headers).toMatchObject({ Authorization: 'Bearer APP_USR-naora' });
+    expect(JSON.parse(init.body)).toEqual({
+      reason: 'Naora Pro',
+      external_reference: 'biz',
+      payer_email: 'ana@example.com',
+      back_url: 'https://naora.app/pt/painel?pro=1',
+      status: 'pending',
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: 39.9,
+        currency_id: 'BRL',
+      },
+    });
+  });
+
+  it('reads and cancels a subscription', async () => {
+    const read = fakeFetch(200, { id: 'sub-1', status: 'authorized', external_reference: 'biz' });
+    expect(await getSubscription('APP_USR-naora', 'sub-1', read)).toEqual({
+      id: 'sub-1',
+      status: 'authorized',
+      externalReference: 'biz',
+    });
+    const cancel = fakeFetch(200, { id: 'sub-1', status: 'cancelled' });
+    await cancelSubscription('APP_USR-naora', 'sub-1', cancel);
+    expect(cancel.mock.calls[0][0]).toBe('https://api.mercadopago.com/preapproval/sub-1');
+    expect(cancel.mock.calls[0][1]).toMatchObject({
+      method: 'PUT',
+      body: JSON.stringify({ status: 'cancelled' }),
+    });
   });
 });

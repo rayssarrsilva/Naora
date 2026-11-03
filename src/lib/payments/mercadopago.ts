@@ -54,6 +54,8 @@ export type PixRequest = {
   expiresAt: string;
   /** The same key never creates two charges, even if the request is retried. */
   idempotencyKey: string;
+  /** Naora's share, kept by Mercado Pago's split. Only with a token from Naora's OAuth app. */
+  applicationFeeCents?: number;
 };
 
 export type PixCharge = {
@@ -74,6 +76,7 @@ export async function createPixCharge(
     payer: { email: request.payerEmail },
     external_reference: request.externalReference,
     date_of_expiration: request.expiresAt,
+    ...(request.applicationFeeCents ? { application_fee: request.applicationFeeCents / 100 } : {}),
     ...(request.notificationUrl.startsWith('https://')
       ? { notification_url: request.notificationUrl }
       : {}),
@@ -111,18 +114,157 @@ export async function getPayment(
   };
 }
 
-/** Checks a token before saving it: Mercado Pago answers 401 for a wrong one. */
-export async function tokenWorks(accessToken: string, fetchImpl: Fetch = fetch): Promise<boolean> {
-  try {
-    await call(fetchImpl, '/users/me', accessToken);
-    return true;
-  } catch (error) {
-    if (error instanceof MercadoPagoError && (error.status === 401 || error.status === 403)) {
-      return false;
-    }
-    throw error;
-  }
+// OAuth: the business connects its own account to Naora's Mercado Pago application.
+// Docs: https://www.mercadopago.com.br/developers/en/docs/oauth/creation
+
+export type OAuthApp = { clientId: string; clientSecret: string; redirectUri: string };
+
+/** Where the owner goes to authorize Naora. `state` ties the answer to this request. */
+export function authorizeUrl(app: Pick<OAuthApp, 'clientId' | 'redirectUri'>, state: string) {
+  const params = new URLSearchParams({
+    client_id: app.clientId,
+    response_type: 'code',
+    platform_id: 'mp',
+    state,
+    redirect_uri: app.redirectUri,
+  });
+  return `https://auth.mercadopago.com/authorization?${params}`;
 }
 
-/** Production tokens start with APP_USR-, sandbox ones with TEST-. */
-export const tokenPattern = /^(APP_USR|TEST)-[\w-]{20,}$/;
+export type OAuthTokens = {
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+  expiresAt: Date;
+};
+
+async function token(
+  fetchImpl: Fetch,
+  body: Record<string, string>,
+  now: Date,
+): Promise<OAuthTokens> {
+  const response = await fetchImpl(`${api}/oauth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new MercadoPagoError(response.status, await response.text());
+  const json = (await response.json()) as Record<string, unknown>;
+  if (typeof json.access_token !== 'string' || typeof json.refresh_token !== 'string') {
+    throw new MercadoPagoError(502, 'token answer without tokens');
+  }
+  const seconds = Number(json.expires_in) || 15_552_000; // 180 days
+  return {
+    accessToken: json.access_token,
+    refreshToken: json.refresh_token,
+    userId: String(json.user_id ?? ''),
+    expiresAt: new Date(now.getTime() + seconds * 1000),
+  };
+}
+
+/** Trades the one-time code (valid for 10 minutes) for the business's tokens. */
+export function exchangeCode(
+  app: OAuthApp,
+  code: string,
+  fetchImpl: Fetch = fetch,
+  now = new Date(),
+) {
+  return token(
+    fetchImpl,
+    {
+      client_id: app.clientId,
+      client_secret: app.clientSecret,
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: app.redirectUri,
+    },
+    now,
+  );
+}
+
+/** Access tokens last 180 days; the refresh token gets a new one without asking the owner again. */
+export function refreshTokens(
+  app: Pick<OAuthApp, 'clientId' | 'clientSecret'>,
+  refreshToken: string,
+  fetchImpl: Fetch = fetch,
+  now = new Date(),
+) {
+  return token(
+    fetchImpl,
+    {
+      client_id: app.clientId,
+      client_secret: app.clientSecret,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    },
+    now,
+  );
+}
+
+// Subscriptions (Pro), charged on Naora's own account.
+// Docs: https://www.mercadopago.com.br/developers/pt/reference/subscriptions/_preapproval/post
+
+export type SubscriptionStatus = 'pending' | 'authorized' | 'paused' | 'cancelled';
+
+export type SubscriptionRequest = {
+  accessToken: string;
+  reason: string;
+  amountCents: number;
+  payerEmail: string;
+  /** Our business id. */
+  externalReference: string;
+  /** Where Mercado Pago sends the owner back after the checkout. */
+  backUrl: string;
+};
+
+/** A monthly subscription waiting for the owner to pay; init_point is the checkout page. */
+export async function createSubscription(
+  request: SubscriptionRequest,
+  fetchImpl: Fetch = fetch,
+): Promise<{ id: string; initPoint: string }> {
+  const json = await call(fetchImpl, '/preapproval', request.accessToken, {
+    method: 'POST',
+    body: JSON.stringify({
+      reason: request.reason,
+      external_reference: request.externalReference,
+      payer_email: request.payerEmail,
+      back_url: request.backUrl,
+      status: 'pending',
+      auto_recurring: {
+        frequency: 1,
+        frequency_type: 'months',
+        transaction_amount: request.amountCents / 100,
+        currency_id: 'BRL',
+      },
+    }),
+  });
+  if (!json.id || typeof json.init_point !== 'string') {
+    throw new MercadoPagoError(502, 'subscription created without a checkout link');
+  }
+  return { id: String(json.id), initPoint: json.init_point };
+}
+
+export async function getSubscription(
+  accessToken: string,
+  id: string,
+  fetchImpl: Fetch = fetch,
+): Promise<{ id: string; status: SubscriptionStatus; externalReference: string }> {
+  const json = await call(fetchImpl, `/preapproval/${encodeURIComponent(id)}`, accessToken);
+  return {
+    id: String(json.id),
+    status: String(json.status) as SubscriptionStatus,
+    externalReference: String(json.external_reference ?? ''),
+  };
+}
+
+export async function cancelSubscription(
+  accessToken: string,
+  id: string,
+  fetchImpl: Fetch = fetch,
+) {
+  await call(fetchImpl, `/preapproval/${encodeURIComponent(id)}`, accessToken, {
+    method: 'PUT',
+    body: JSON.stringify({ status: 'cancelled' }),
+  });
+}

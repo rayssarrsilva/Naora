@@ -11,7 +11,7 @@
 
 </div>
 
-> **Status: Sprint 3 pronta.** A cliente agenda um horário livre e garante com um sinal no Pix, que cai direto na conta Mercado Pago do negócio. Próximo passo: colocar no ar, ciclo de QA e os primeiros negócios. Feito em público; acompanhe pelo [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
+> **Status: Sprint 4 pronta.** A cliente agenda e paga o sinal no Pix direto na conta Mercado Pago do negócio, e a Naora ganha em cada sinal ou com um plano mensal. Próximo passo: ciclo de QA e os primeiros negócios. Feito em público; acompanhe pelo [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
 
 ## Por que "Naora"?
 
@@ -27,7 +27,8 @@ Naora é "na hora" do jeito que a gente fala. É a promessa do produto: a client
 - **Agendamento online**: a cliente escolhe o serviço, o dia e um horário livre, deixa nome e WhatsApp e recebe a confirmação com o link "Adicionar ao Google Agenda". A cliente não precisa criar conta.
 - **Sem horário duplicado**: a verificação e a gravação acontecem numa transação com um lock do Postgres por negócio, então quando duas clientes clicam no mesmo horário ao mesmo tempo, só uma fica com ele. Os horários respeitam o funcionamento, a duração do serviço, uma hora de antecedência e o fuso do negócio.
 - **Sinal no Pix**: quando o serviço tem sinal, a cliente recebe o QR Code e o Pix copia e cola, e o horário fica guardado por 30 minutos. O agendamento é confirmado quando o pagamento cai; sem pagamento, o horário é liberado. A página atualiza sozinha.
-- **Conta Mercado Pago do próprio negócio**: a profissional conecta no painel e o dinheiro nunca passa pela Naora. O token é conferido com o Mercado Pago e guardado criptografado (AES-256-GCM).
+- **Conta Mercado Pago do próprio negócio**: a profissional clica em **Conectar com Mercado Pago** (OAuth) e autoriza a Naora na página do próprio Mercado Pago; nenhuma senha ou token é digitado na Naora. Os tokens ficam criptografados (AES-256-GCM) e são renovados antes de vencer.
+- **Dois planos**: no **Grátis** não há mensalidade e 15% de cada sinal pago fica com a Naora, separados pelo split do Mercado Pago no momento do pagamento; o **Pro** custa R$ 39,90 por mês, sem taxa. O painel mostra os sinais e as taxas do mês, e a partir de quantos sinais o Pro sai mais barato.
 - **Confirmação confiável**: o aviso do Mercado Pago só faz a Naora ler o pagamento de novo com o token do negócio; um aviso forjado não muda nada. Um pagamento que chega depois de outra pessoa pegar o horário fica registrado, mas nunca gera horário duplicado.
 - **Conta demo** recebe um Pix de mentira e um botão "Simular pagamento", para qualquer pessoa testar o fluxo inteiro sem pagar.
 - **Próximos agendamentos** no painel, com link para o WhatsApp da cliente e um botão de cancelar que libera o horário.
@@ -38,6 +39,15 @@ Naora é "na hora" do jeito que a gente fala. É a promessa do produto: a client
 - **Profissionais** veem o dia, a equipe e o que entrou num lugar só, e param de perder horário com falta sem aviso.
 
 É um produto real, com pagamento real, feito primeiro para pequenos negócios de Uberaba. O raciocínio e as hipóteses a testar estão no [brief do produto](./docs/discovery/BRIEF.md) (em inglês).
+
+## Planos
+
+| Plano  | Mensalidade | Parte da Naora em cada sinal no Pix |
+| ------ | ----------- | ----------------------------------- |
+| Grátis | R$ 0        | 15%                                 |
+| Pro    | R$ 39,90    | nenhuma                             |
+
+Com um sinal típico de R$ 24, o Pro sai mais barato a partir de 12 sinais pagos no mês. Todo o resto é igual nos dois planos.
 
 ## Design
 
@@ -89,7 +99,8 @@ Ou rode tudo como em produção: `docker compose up --build` (http://localhost:3
 2. **Sprint 1** · o negócio cria a sua página; serviços e horário de funcionamento ✅
 3. **Sprint 2** · a cliente agenda um horário livre; agendamento duplo é impossível ✅
 4. **Sprint 3** · sinal no Pix pelo Mercado Pago, confirmado por webhook ✅
-5. **Beta** · primeiros negócios de Uberaba, ciclo de QA e o primeiro plano pago
+5. **Sprint 4** · planos: Grátis com parte de cada sinal (split do Mercado Pago) ou Pro mensal; Conectar com Mercado Pago (OAuth) ✅
+6. **Beta** · ciclo de QA com um Pix real e os primeiros negócios de Uberaba
 
 ## Contato
 

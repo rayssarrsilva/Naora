@@ -1,36 +1,30 @@
 'use client';
 
-import { Button, Input } from '@rayssarrsilva/ipe';
-import { useTranslations } from 'next-intl';
+import { Button } from '@rayssarrsilva/ipe';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, useTransition } from 'react';
-import {
-  connectMercadoPagoAction,
-  disconnectMercadoPagoAction,
-} from '@/app/[locale]/painel/actions';
+import { disconnectMercadoPagoAction } from '@/app/[locale]/painel/actions';
+import { primaryLink } from '@/components/booking/styles';
 import { useErrorText } from './use-action-errors';
 
-/** Connect or disconnect the business's own Mercado Pago account. The token is never shown back. */
-export function PaymentsSettings({ connectedOn }: { connectedOn: string | null }) {
+/**
+ * "Connect with Mercado Pago" (OAuth). The owner authorizes Naora on Mercado Pago's own page; no
+ * password or token is ever typed into Naora.
+ */
+export function PaymentsSettings({
+  connectedOn,
+  accountId,
+  available,
+}: {
+  connectedOn: string | null;
+  accountId: string | null;
+  available: boolean;
+}) {
   const t = useTranslations('Panel');
+  const locale = useLocale();
   const errorText = useErrorText();
-  const [token, setToken] = useState('');
-  const [fieldError, setFieldError] = useState<string>();
   const [status, setStatus] = useState('');
   const [pending, startTransition] = useTransition();
-
-  function connect(event: React.FormEvent) {
-    event.preventDefault();
-    startTransition(async () => {
-      setStatus('');
-      setFieldError(undefined);
-      const result = await connectMercadoPagoAction({ token });
-      if (result.ok) {
-        setToken('');
-        setStatus(t('connectedDone'));
-      } else if (result.fields?.token) setFieldError(result.fields.token);
-      else setStatus(errorText(result.error) ?? '');
-    });
-  }
 
   function disconnect() {
     startTransition(async () => {
@@ -43,28 +37,25 @@ export function PaymentsSettings({ connectedOn }: { connectedOn: string | null }
     <div className="grid gap-4">
       {connectedOn ? (
         <div className="flex flex-wrap items-center gap-4">
-          <p className="mr-auto">{t('connected', { date: connectedOn })}</p>
+          <p className="mr-auto">
+            {t('connected', { date: connectedOn })}
+            {accountId && ` ${t('connectedAccount', { id: accountId })}`}
+          </p>
           <Button type="button" variant="ghost" loading={pending} onClick={disconnect}>
             {t('disconnect')}
           </Button>
         </div>
-      ) : (
-        <form onSubmit={connect} noValidate className="grid gap-4">
+      ) : available ? (
+        <div className="grid gap-3">
           <p className="text-text-secondary">{t('paymentsOff')}</p>
-          <Input
-            label={t('token')}
-            type="password"
-            autoComplete="off"
-            spellCheck={false}
-            hint={t('tokenHint')}
-            value={token}
-            onChange={(event) => setToken(event.target.value)}
-            error={errorText(fieldError)}
-          />
-          <Button type="submit" loading={pending} className="w-fit">
+          {/* A plain link: the connection starts on the server and leaves for Mercado Pago. */}
+          <a href={`/api/mercadopago/connect?locale=${locale}`} className={`${primaryLink} w-fit`}>
             {t('connect')}
-          </Button>
-        </form>
+          </a>
+          <p className="text-sm text-text-secondary">{t('connectHint')}</p>
+        </div>
+      ) : (
+        <p className="text-text-secondary">{t('paymentsUnavailable')}</p>
       )}
       <p role="status">{status}</p>
     </div>

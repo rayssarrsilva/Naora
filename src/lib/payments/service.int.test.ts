@@ -5,7 +5,7 @@ import {
   bookingSummary,
   createBooking,
 } from '@/lib/booking/repository';
-import { addService, createBusiness, saveMercadoPagoToken } from '@/lib/business/repository';
+import { addService, createBusiness, saveMercadoPagoConnection } from '@/lib/business/repository';
 import { db } from '@/lib/db/client';
 import { encryptSecret } from '@/lib/security/secrets';
 import { markPaid, simulateDemoPayment, syncMercadoPagoPayment } from './service';
@@ -22,9 +22,15 @@ async function salon(slug: string, options: { demo?: boolean; mercadoPago?: bool
   const owner = await db().user.create({
     data: { email: `${slug}-${crypto.randomUUID()}@test.naora.app` },
   });
-  await createBusiness(owner.id, { name: slug, slug }, { demo: options.demo });
-  if (options.mercadoPago)
-    await saveMercadoPagoToken(owner.id, encryptSecret('APP_USR-owner-token'));
+  const created = await createBusiness(owner.id, { name: slug, slug }, { demo: options.demo });
+  if (options.mercadoPago && created.ok) {
+    await saveMercadoPagoConnection(created.business.id, {
+      userId: '777',
+      accessToken: encryptSecret('APP_USR-owner-token'),
+      refreshToken: encryptSecret('TG-owner-refresh'),
+      expiresAt: new Date('2030-01-01T00:00:00Z'),
+    });
+  }
   const service = (await addService(owner.id, {
     name: 'Escova',
     durationMin: 60,
