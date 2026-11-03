@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Naora · online booking with a Pix deposit",
-    "description": "Online booking for salons, barbershops and studios: clients pick a time from a link and hold it with a Pix deposit. In progress."
+    "description": "Online booking for salons, barbershops and studios: clients pick a time from a link and hold it with a Pix deposit."
   },
   "Theme": {
     "dark": "Use dark theme",
@@ -14,17 +14,20 @@
     "panel": "My dashboard"
   },
   "Home": {
-    "status": "In progress · free beta coming soon",
+    "status": "Open beta · start for free",
     "title": "A full calendar, fewer no-shows, and less time on WhatsApp.",
-    "lead": "Naora will be online booking for anyone who works by appointment. Clients pick a time from a link and hold it with a Pix deposit. You see the day, the team and what came in, in one place.",
-    "stepsTitle": "How it will work",
+    "lead": "Naora is online booking for anyone who works by appointment. Clients pick a time from a link and hold it with a Pix deposit that goes straight to your account. You see the day and what came in, in one place.",
+    "stepsTitle": "How it works",
     "step1": "You share your link on Instagram or WhatsApp.",
     "step2": "Your client picks a service and a free time.",
     "step3": "They pay a Pix deposit, and the time is held for both of you.",
-    "ctaTitle": "Want to try it for free?",
-    "ctaText": "The first version will be free for the first salons, barbershops and studios that try it and share what they think. Send me an email and I will let you know when it opens.",
-    "ctaButton": "I want to try it",
-    "ctaSubject": "I want to try Naora"
+    "ctaTitle": "Want to try it now?",
+    "ctaText": "Sign in with a one-click demo account: create a business page, add a service and book as if you were the client. In the demo the Pix is simulated and nothing is charged.",
+    "ctaButton": "Start for free",
+    "plansTitle": "Plans",
+    "plansLead": "Start without paying anything. When your calendar fills up, Pro costs less.",
+    "seePlans": "See the plans",
+    "questions": "Questions, or want help getting started? <email>Send me an email</email>."
   },
   "Footer": {
     "built": "Built in public by Rayssa Roberta.",

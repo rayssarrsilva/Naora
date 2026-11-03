@@ -43,11 +43,12 @@ describe('Home page', () => {
     cy.location('hash').should('eq', '#content');
   });
 
-  it('opens an email to join the free beta', () => {
+  it('starts for free from the home page, and shows the plans', () => {
     cy.visit('/pt');
-    cy.contains('a', 'Quero testar grátis')
-      .should('have.attr', 'href')
-      .and('match', /^mailto:rayssarrsilva1@gmail\.com\?subject=/);
+    cy.contains('a', 'Começar grátis').should('have.attr', 'href', '/pt/entrar');
+    cy.contains('h2', 'Planos').should('be.visible');
+    cy.contains('li', 'Grátis').should('contain.text', '15% de cada sinal');
+    cy.contains('li', 'Pro').should('contain.text', 'R$ 39,90');
   });
 });
 
