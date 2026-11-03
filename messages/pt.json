@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Naora · agenda online com sinal no Pix",
-    "description": "Agenda online para salões, barbearias e estúdios: a cliente escolhe o horário por um link e garante a vaga com um sinal no Pix. Em construção."
+    "description": "Agenda online para salões, barbearias e estúdios: a cliente escolhe o horário por um link e garante a vaga com um sinal no Pix."
   },
   "Theme": {
     "dark": "Usar tema escuro",
@@ -14,17 +14,20 @@
     "panel": "Meu painel"
   },
   "Home": {
-    "status": "Em construção · beta gratuito em breve",
+    "status": "Beta aberto · comece grátis",
     "title": "Sua agenda cheia, sem cliente faltando e sem passar o dia no WhatsApp.",
-    "lead": "A Naora vai ser uma agenda online para quem atende com hora marcada. A cliente escolhe o horário por um link e garante a vaga com um sinal no Pix. Você vê o dia, a equipe e o que entrou, num lugar só.",
-    "stepsTitle": "Como vai funcionar",
+    "lead": "A Naora é a agenda online para quem atende com hora marcada. A cliente escolhe o horário por um link e garante a vaga com um sinal no Pix, que cai direto na sua conta. Você vê o dia e o que entrou, num lugar só.",
+    "stepsTitle": "Como funciona",
     "step1": "Você manda o seu link no Instagram ou no WhatsApp.",
     "step2": "A cliente escolhe o serviço e o horário livre.",
     "step3": "Ela paga um sinal no Pix e o horário fica garantido para as duas.",
-    "ctaTitle": "Quer testar de graça?",
-    "ctaText": "A primeira versão vai ser gratuita para os primeiros salões, barbearias e estúdios que toparem testar e contar o que achou. Me manda um e-mail e eu te aviso quando abrir.",
-    "ctaButton": "Quero testar grátis",
-    "ctaSubject": "Quero testar a Naora"
+    "ctaTitle": "Quer testar agora?",
+    "ctaText": "Entre com uma conta demo de um clique: crie a página de um negócio, cadastre um serviço e agende como se fosse a cliente. Na demo o Pix é simulado e nada é cobrado.",
+    "ctaButton": "Começar grátis",
+    "plansTitle": "Planos",
+    "plansLead": "Comece sem pagar nada. Quando a agenda encher, o Pro sai mais barato.",
+    "seePlans": "Ver os planos",
+    "questions": "Dúvidas ou quer ajuda para começar? <email>Me mande um e-mail</email>."
   },
   "Footer": {
     "built": "Feito em público por Rayssa Roberta.",
