@@ -18,6 +18,18 @@ The free Render instance sleeps after 15 minutes without visits; the first visit
 4. If Render gives the service another address than `https://naora.onrender.com`, update `NEXT_PUBLIC_SITE_URL` in Render and redeploy.
 5. Check `https://<address>/api/health` answers `{"status":"ok","database":"ok"}`.
 
+## Payments and plans
+
+Naora earns in two ways: on the **Free** plan it keeps 15% of each Pix deposit, collected by Mercado Pago's split at the moment the client pays; **Pro** is R$ 39,90 a month with no share. Both need Naora's own Mercado Pago application:
+
+1. **Mercado Pago Developers** (with Naora's account) › _Your integrations_ › _Create application_. Choose online payments with Checkout API (Checkout Transparente).
+2. In the application, set the **Redirect URL** to `https://naora.onrender.com/api/mercadopago/callback` (the address must match exactly).
+3. Under **Webhooks**, add `https://naora.onrender.com/api/webhooks/mercadopago/platform` for **subscriptions** (plans and subscriptions). Pix payments do not need this: each charge carries its own notification address.
+4. In Render, fill in `MP_CLIENT_ID` and `MP_CLIENT_SECRET` (the application's credentials) and `MP_PLATFORM_ACCESS_TOKEN` (the production access token of Naora's account). Redeploy.
+5. In the dashboard of a real (not demo) business, click **Connect with Mercado Pago** and authorize. Then book a service with a small deposit and pay it to confirm the split in Mercado Pago's activity.
+
+Without these keys the app still works: businesses cannot connect Mercado Pago, so deposits are arranged in person, and Pro cannot be bought. Demo accounts simulate both.
+
 ## After that
 
 - Every merge to main deploys the app; a merge that adds a migration also runs `migrate.yml`.

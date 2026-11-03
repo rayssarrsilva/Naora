@@ -11,7 +11,7 @@
 
 </div>
 
-> **Status: Sprint 3 done.** Clients book a free time and secure it with a Pix deposit that goes straight to the business's Mercado Pago account. Next: going live, the QA cycle and the first businesses. Built in public; follow along on [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
+> **Status: Sprint 4 done.** Clients book and pay a Pix deposit straight to the business's Mercado Pago account, and Naora earns on every deposit or a monthly plan. Next: the QA cycle and the first businesses. Built in public; follow along on [LinkedIn](https://www.linkedin.com/in/rayssa-r-14936622a/).
 
 ## Why "Naora"?
 
@@ -27,7 +27,8 @@ Naora is how "na hora" sounds when you say it fast in Portuguese: "on time", "ri
 - **Online booking**: the client picks a service, a day and a free time, leaves a name and WhatsApp number, and gets a confirmation with an "Add to Google Calendar" link. No sign-up for clients.
 - **No double booking**: the check and the insert run in one transaction under a per-business Postgres lock, so when two clients click the same time at once, exactly one gets it. Times respect opening hours, the service length, one hour of notice and the business's time zone.
 - **Pix deposit**: when a service has a deposit, the client gets a Pix QR code and "copia e cola" code, and the time is held for 30 minutes. The booking is confirmed when the payment lands; unpaid, the time is released. The page updates on its own.
-- **The business's own Mercado Pago account**: the owner connects it in the dashboard and the money never passes through Naora. The token is checked with Mercado Pago and stored encrypted (AES-256-GCM).
+- **The business's own Mercado Pago account**: the owner clicks **Connect with Mercado Pago** (OAuth) and authorizes Naora on Mercado Pago's own page; no password or token is typed into Naora. The tokens are stored encrypted (AES-256-GCM) and refreshed before they expire.
+- **Two plans**: **Free** costs nothing a month and Naora keeps 15% of each paid deposit, taken by Mercado Pago's split when the client pays; **Pro** is R$ 39,90 a month with no share. The dashboard shows this month's deposits and fees, and from how many deposits Pro becomes cheaper.
 - **Trustworthy confirmations**: Mercado Pago's notification only makes Naora read the payment again with the business's token; a forged notification changes nothing. A payment that arrives after someone else took the time is recorded but never double-books it.
 - **Demo accounts** get a fake Pix and a "Simulate payment" button, so anyone can try the whole flow without paying.
 - **Upcoming bookings** in the dashboard, with a WhatsApp link to the client and a cancel button that gives the time back.
@@ -38,6 +39,15 @@ Naora is how "na hora" sounds when you say it fast in Portuguese: "on time", "ri
 - **Professionals** see the day, the team and what came in, in one place, and stop losing chairs to no-shows.
 
 It is a real product, with real payments, built for small businesses in Uberaba, Brazil, first. The reasoning and the hypotheses to test are in the [product brief](./docs/discovery/BRIEF.md).
+
+## Pricing
+
+| Plan | Monthly  | Naora's share of each Pix deposit |
+| ---- | -------- | --------------------------------- |
+| Free | R$ 0     | 15%                               |
+| Pro  | R$ 39,90 | none                              |
+
+With a typical R$ 24 deposit, Pro is cheaper from 12 paid deposits a month. Everything else is the same on both plans.
 
 ## Design
 
@@ -113,7 +123,8 @@ docs/deploy/        how production is set up
 2. **Sprint 1** · a business opens its page; services and opening hours ✅
 3. **Sprint 2** · clients book a free time; double booking is impossible ✅
 4. **Sprint 3** · Pix deposit with Mercado Pago, confirmed by webhook ✅
-5. **Beta** · first businesses in Uberaba, QA cycle, then the first paid plan
+5. **Sprint 4** · plans: Free with a share of each deposit (Mercado Pago split) or Pro monthly; Connect with Mercado Pago (OAuth) ✅
+6. **Beta** · QA cycle with a real Pix, then the first businesses in Uberaba
 
 ## Contact
 
