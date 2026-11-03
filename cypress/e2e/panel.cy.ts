@@ -69,6 +69,23 @@ describe('Business dashboard', () => {
     cy.contains('Esse endereço já está em uso. Tente outro.').should('be.visible');
   });
 
+  it('shows the plans and switches a demo account to Pro and back, with nothing charged', () => {
+    cy.signInAsDemo();
+    cy.field('Nome do negócio').type(`Studio Plano ${Date.now()}`);
+    cy.contains('button', 'Criar página').click();
+    cy.contains('h2', 'Plano').should('be.visible');
+    cy.contains('li[aria-current="true"]', 'Grátis').should('contain.text', '15% de cada sinal');
+    cy.contains('Na conta demo, nada é cobrado').should('be.visible');
+    cy.checkPageA11y();
+
+    cy.contains('button', 'Simular o Pro (conta demo)').click();
+    cy.contains('[role="status"]', 'Pronto: você está no Pro.').should('be.visible');
+    cy.contains('li[aria-current="true"]', 'Pro').should('contain.text', 'Sem taxa');
+
+    cy.contains('button', 'Voltar para o Grátis').click();
+    cy.contains('li[aria-current="true"]', 'Grátis').should('be.visible');
+  });
+
   it('answers 404 for a page that does not exist', () => {
     cy.request({ url: '/pt/b/nao-existe-mesmo', failOnStatusCode: false })
       .its('status')
