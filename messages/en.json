@@ -94,13 +94,19 @@
     "paymentsLead": "Connect your Mercado Pago account: deposits go straight to it, never through Naora.",
     "paymentsDemo": "In the demo account, the Pix is simulated: clients see the QR code and a button to simulate the payment.",
     "paymentsOff": "Without a connected account, services with a deposit are booked without a charge, and you arrange the deposit with the client.",
-    "token": "Production access token",
-    "tokenHint": "On Mercado Pago: Your integrations › your application › Production credentials. It is stored encrypted.",
-    "connect": "Connect Mercado Pago",
+    "connect": "Connect with Mercado Pago",
     "connected": "Mercado Pago connected on {date}.",
     "disconnect": "Disconnect",
-    "connectedDone": "Account connected.",
-    "disconnectedDone": "Account disconnected."
+    "disconnectedDone": "Account disconnected.",
+    "connectHint": "You authorize Naora on Mercado Pago's own page. No password goes through here.",
+    "connectedAccount": "(account {id})",
+    "paymentsUnavailable": "Payments are not active on this server yet.",
+    "mp_connected": "Mercado Pago account connected. The next deposits go straight to it.",
+    "mp_error": "Could not connect Mercado Pago. Try again.",
+    "mp_unavailable": "Connecting Mercado Pago is not available for this account.",
+    "planTitle": "Plan",
+    "planLead": "With no monthly fee, a share of each deposit goes to Naora. With Pro, the whole deposit is yours.",
+    "proProcessing": "We got your subscription. Pro turns on as soon as Mercado Pago confirms the payment."
   },
   "Weekdays": {
     "0": "Sunday",
@@ -147,10 +153,8 @@
     "emailRequired": "Type your email to get the Pix receipt.",
     "paymentUnavailable": "Payments are unavailable right now. Try again in a moment.",
     "notPaidYet": "The payment has not arrived yet. If you have paid, wait a few seconds.",
-    "tokenInvalid": "Paste the whole access token, starting with APP_USR-.",
-    "tokenRejected": "Mercado Pago did not accept this token. Check that it is the production one.",
-    "demoPayments": "In the demo account, the Pix is simulated.",
-    "paymentsOff": "Payments are not active on this server yet."
+    "paymentsOff": "Payments are not active on this server yet.",
+    "alreadyPro": "You are already on Pro."
   },
   "Booking": {
     "back": "Back to {name}",
@@ -200,5 +204,25 @@
     "expiredTitle": "The time to pay ran out",
     "expiredLead": "The time was released for others. You can pick again.",
     "depositPaid": "paid"
+  },
+  "Plans": {
+    "freeName": "Free",
+    "freePrice": "R$ 0 a month",
+    "freeFee": "Naora keeps {percent}% of each paid deposit",
+    "proName": "Pro",
+    "proPrice": "{price} a month",
+    "proFee": "No fee: the whole deposit is yours",
+    "everything": "Booking, page, Pix deposit and dashboard, all included",
+    "current": "Your plan",
+    "monthFree": "This month: {count, plural, =0 {no paid deposits yet} one {# paid deposit} other {# paid deposits}}, {fees} in Naora fees.",
+    "monthPro": "This month: {count, plural, =0 {no paid deposits yet} one {# paid deposit} other {# paid deposits}}, with no fee at all.",
+    "breakEven": "With your deposits, from {count} paid in a month Pro is already cheaper.",
+    "subscribe": "Get Pro for {price} a month",
+    "subscribeDemo": "Simulate Pro (demo account)",
+    "subscribeOff": "Pro subscriptions are not active on this server yet.",
+    "cancel": "Go back to Free",
+    "proOn": "Done: you are on Pro.",
+    "freeOn": "You are back on Free.",
+    "demoNote": "In the demo account nothing is charged: fees and Pro are simulated."
   }
 }
