@@ -15,7 +15,7 @@ The free Render instance sleeps after 15 minutes without visits; the first visit
 1. **Neon**: create a project in the São Paulo region if offered (otherwise US East). Copy two connection strings: the **pooled** one (for the app) and the **direct** one (for migrations).
 2. **GitHub**: Settings › Environments › `production` › add the secret `DATABASE_URL` with the **direct** string. Then Actions › _Migrate production database_ › Run workflow.
 3. **Render**: New › Blueprint › pick this repository. Render reads `render.yaml`, generates `AUTH_SECRET` and `PAYMENTS_KEY`, and asks for `DATABASE_URL` (paste the **pooled** string). Google sign-in is optional; leave its two keys empty to offer only the demo account.
-4. If Render gives the service another address than `https://naora.onrender.com`, update `NEXT_PUBLIC_SITE_URL` in Render and redeploy.
+4. If Render gives the service another address than `https://naora.onrender.com`, update `NEXT_PUBLIC_SITE_URL` and `AUTH_URL` in Render and redeploy. `AUTH_URL` matters: behind Render's proxy the app sees its internal address (`0.0.0.0:10000`), and sign-in would send people there.
 5. Check `https://<address>/api/health` answers `{"status":"ok","database":"ok"}`.
 
 ## Payments and plans

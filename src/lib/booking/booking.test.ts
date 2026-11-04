@@ -1,3 +1,4 @@
+import { isBookable, onlineBooking } from './rules';
 import { formatPhone, normalizePhone, bookingSchema } from './schema';
 import { bookableDays, freeSlots, hoursOn } from './slots';
 import { addDays, isDay, localDay, localMinutes, weekdayOf, zonedInstant } from './time';
@@ -129,5 +130,18 @@ describe('client details', () => {
       phone: '(11) 91234-5678',
     });
     expect(ok).toMatchObject({ name: 'Bia', phone: '11912345678' });
+  });
+});
+
+describe('online booking rule', () => {
+  it.each([
+    [{ takesDeposits: true, plan: 'FREE', depositCents: 1000 }, 'deposit', true],
+    [{ takesDeposits: false, plan: 'FREE', depositCents: 1000 }, 'needsMercadoPago', false],
+    [{ takesDeposits: false, plan: 'PRO', depositCents: 1000 }, 'needsMercadoPago', false],
+    [{ takesDeposits: true, plan: 'FREE', depositCents: 0 }, 'needsDeposit', false],
+    [{ takesDeposits: false, plan: 'PRO', depositCents: 0 }, 'free', true],
+  ] as const)('%o → %s', (input, rule, bookable) => {
+    expect(onlineBooking(input)).toBe(rule);
+    expect(isBookable(onlineBooking(input))).toBe(bookable);
   });
 });

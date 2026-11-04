@@ -5,7 +5,14 @@ import { BookingForm } from '@/components/booking/booking-form';
 import { choiceLink } from '@/components/booking/styles';
 import { Link } from '@/i18n/navigation';
 import { formatDayLong, formatDayShort, formatTime, formatWhen } from '@/lib/booking/format';
-import { availability, bookingContext, holdMinutes, needsDeposit } from '@/lib/booking/repository';
+import {
+  availability,
+  bookingContext,
+  bookingRule,
+  holdMinutes,
+  needsDeposit,
+} from '@/lib/booking/repository';
+import { isBookable } from '@/lib/booking/rules';
 import { formatReais } from '@/lib/business/money';
 
 type Params = Promise<{ locale: string; slug: string; serviceId: string }>;
@@ -35,10 +42,13 @@ export default async function BookingPage({
   const tz = business.timezone;
   const money = (cents: number) => formatReais(cents, locale === 'en' ? 'en' : 'pt');
 
-  const days = await availability(context);
+  const bookable = isBookable(bookingRule(context));
+  const days = bookable ? await availability(context) : [];
   const query = await searchParams;
   const firstOpen = days.find((d) => d.slots.length > 0);
-  const chosenDay = days.find((d) => d.day === one(query.dia)) ?? firstOpen ?? days[0]!;
+  const chosenDay = days.find((d) => d.day === one(query.dia)) ??
+    firstOpen ??
+    days[0] ?? { day: '', slots: [] };
   const hora = one(query.hora);
   const chosenSlot = chosenDay.slots.find((slot) => slot.toISOString() === hora);
   const base = `/b/${slug}/agendar/${service.id}`;
@@ -57,7 +67,9 @@ export default async function BookingPage({
         </p>
       </div>
 
-      {!firstOpen ? (
+      {!bookable ? (
+        <p role="status">{t('unavailable')}</p>
+      ) : !firstOpen ? (
         <p role="status">{t('noSlotsAtAll')}</p>
       ) : (
         <>
@@ -138,14 +150,9 @@ export default async function BookingPage({
                 startsAt={chosenSlot.toISOString()}
                 askEmail={needsDeposit(context)}
               />
-              {service.depositCents > 0 && (
+              {needsDeposit(context) && (
                 <p className="text-sm text-text-secondary">
-                  {needsDeposit(context)
-                    ? t('depositNext', {
-                        deposit: money(service.depositCents),
-                        minutes: holdMinutes,
-                      })
-                    : t('depositAtBusiness')}
+                  {t('depositNext', { deposit: money(service.depositCents), minutes: holdMinutes })}
                 </p>
               )}
             </section>

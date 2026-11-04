@@ -57,13 +57,17 @@ export default async function PublicBusinessPage({ params }: { params: Params })
                       : t('noDeposit')}
                   </p>
                 </div>
-                <Link
-                  href={`/b/${business.slug}/agendar/${service.id}`}
-                  aria-label={t('bookLabel', { name: service.name })}
-                  className={primaryLink}
-                >
-                  {t('book')}
-                </Link>
+                {service.bookable ? (
+                  <Link
+                    href={`/b/${business.slug}/agendar/${service.id}`}
+                    aria-label={t('bookLabel', { name: service.name })}
+                    className={primaryLink}
+                  >
+                    {t('book')}
+                  </Link>
+                ) : (
+                  <span className="text-sm text-text-secondary">{t('notBookable')}</span>
+                )}
               </li>
             ))}
           </ul>

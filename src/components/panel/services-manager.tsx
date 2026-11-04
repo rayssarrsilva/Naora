@@ -11,13 +11,20 @@ import {
   setServiceActiveAction,
 } from '@/app/[locale]/painel/actions';
 import { formatReais } from '@/lib/business/money';
+import type { OnlineBooking } from '@/lib/booking/rules';
 import type { ServiceRow } from '@/lib/business/repository';
 import { type ServiceData, type ServiceInput, serviceSchema } from '@/lib/business/schema';
 import { applyServerErrors, useErrorText } from './use-action-errors';
 
 const empty = { name: '', durationMin: '60', price: '', deposit: '0' };
 
-export function ServicesManager({ services, slug }: { services: ServiceRow[]; slug: string }) {
+export function ServicesManager({
+  services,
+  slug,
+}: {
+  services: (ServiceRow & { online?: OnlineBooking })[];
+  slug: string;
+}) {
   const t = useTranslations('Panel');
   const locale = useLocale() === 'en' ? 'en' : 'pt';
   const errorText = useErrorText();
@@ -71,6 +78,10 @@ export function ServicesManager({ services, slug }: { services: ServiceRow[]; sl
                 <p className="font-semibold">
                   {service.name} {!service.active && <Badge>{t('paused')}</Badge>}
                 </p>
+                {service.active &&
+                  (service.online === 'needsDeposit' || service.online === 'needsMercadoPago') && (
+                    <p className="text-sm text-feedback-danger">{t(`online_${service.online}`)}</p>
+                  )}
                 <p className="text-text-secondary">
                   {t('summary', {
                     duration: service.durationMin,

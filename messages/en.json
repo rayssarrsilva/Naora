@@ -46,7 +46,10 @@
     "demoHint": "No sign-up: it creates an empty account just for you to try. All data is for demo only.",
     "google": "Sign in with Google",
     "noProviders": "Sign-in is not set up in this environment yet.",
-    "legal": "By signing in, you agree to the <terms>terms of use</terms> and the <privacy>privacy policy</privacy>."
+    "legal": "By signing in, you agree to the <terms>terms of use</terms> and the <privacy>privacy policy</privacy>.",
+    "inDemo": "You are in a demo account. To use Naora for real, leave it and sign in with your Google account.",
+    "switchAccount": "Leave the demo and sign in with another account",
+    "backToDemo": "Back to the demo dashboard"
   },
   "Panel": {
     "title": "My dashboard",
@@ -69,7 +72,7 @@
     "duration": "Duration (minutes)",
     "price": "Price (R$)",
     "deposit": "Deposit (R$)",
-    "depositHint": "Use 0 for no deposit.",
+    "depositHint": "On the Free plan, a deposit is required to book online. On Pro, use 0 for no deposit.",
     "addService": "Add service",
     "serviceAdded": "Service added.",
     "delete": "Delete",
@@ -99,7 +102,7 @@
     "paymentsTitle": "Pix deposit",
     "paymentsLead": "Connect your Mercado Pago account: deposits go straight to it, never through Naora.",
     "paymentsDemo": "In the demo account, the Pix is simulated: clients see the QR code and a button to simulate the payment.",
-    "paymentsOff": "Without a connected account, services with a deposit are booked without a charge, and you arrange the deposit with the client.",
+    "paymentsOff": "Without Mercado Pago connected, your page does not take online bookings: the deposit is what secures the time.",
     "connect": "Connect with Mercado Pago",
     "connected": "Mercado Pago connected on {date}.",
     "disconnect": "Disconnect",
@@ -112,7 +115,11 @@
     "mp_unavailable": "Connecting Mercado Pago is not available for this account.",
     "planTitle": "Plan",
     "planLead": "With no monthly fee, a share of each deposit goes to Naora. With Pro, the whole deposit is yours.",
-    "proProcessing": "We got your subscription. Pro turns on as soon as Mercado Pago confirms the payment."
+    "proProcessing": "We got your subscription. Pro turns on as soon as Mercado Pago confirms the payment.",
+    "notTakingBookings": "Your page does not take online bookings yet.",
+    "notTakingBookingsHelp": "Bookings are secured by the Pix deposit, which goes straight to your account. <link>Connect Mercado Pago</link> to start taking them.",
+    "online_needsDeposit": "No online booking: on the Free plan, every service needs a deposit.",
+    "online_needsMercadoPago": "No online booking until you connect Mercado Pago."
   },
   "Weekdays": {
     "0": "Sunday",
@@ -133,7 +140,8 @@
     "closed": "Closed",
     "lead": "Pick a service to see the free times.",
     "book": "Book",
-    "bookLabel": "Book {name}"
+    "bookLabel": "Book {name}",
+    "notBookable": "Online booking coming soon"
   },
   "Errors": {
     "nameShort": "Use at least 2 characters.",
@@ -160,7 +168,8 @@
     "paymentUnavailable": "Payments are unavailable right now. Try again in a moment.",
     "notPaidYet": "The payment has not arrived yet. If you have paid, wait a few seconds.",
     "paymentsOff": "Payments are not active on this server yet.",
-    "alreadyPro": "You are already on Pro."
+    "alreadyPro": "You are already on Pro.",
+    "bookingUnavailable": "This service does not take online bookings yet. Contact the business directly."
   },
   "Booking": {
     "back": "Back to {name}",
@@ -193,7 +202,6 @@
     "email": "Email",
     "emailHint": "Mercado Pago sends the Pix receipt to it.",
     "depositNext": "After you confirm, you pay the {deposit} deposit by Pix. The time is held for {minutes} minutes.",
-    "depositAtBusiness": "The deposit is arranged directly with the business.",
     "payTitle": "One step left: the deposit",
     "payLead": "Pay {deposit} by Pix by {time} to secure the time. After that, it is released.",
     "pixTitle": "Pix",
@@ -209,7 +217,8 @@
     "pixHow": "Open your banking app, choose Pix and scan the QR code or paste the code. This page updates on its own when the payment arrives.",
     "expiredTitle": "The time to pay ran out",
     "expiredLead": "The time was released for others. You can pick again.",
-    "depositPaid": "paid"
+    "depositPaid": "paid",
+    "unavailable": "This service does not take online bookings yet. Contact the business directly."
   },
   "Plans": {
     "freeName": "Free",

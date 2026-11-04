@@ -210,11 +210,30 @@ describe('Mercado Pago deposit', () => {
   });
 });
 
-describe('without a payment account', () => {
-  it('books services with a deposit as confirmed, and the deposit is arranged in person', async () => {
+describe("without Naora's deposit, no online booking", () => {
+  it('refuses a service with a deposit while the business has not connected Mercado Pago', async () => {
     const { service } = await salon('studio-plain');
-    const id = idOf(await book('studio-plain', service.id, now, { email: undefined }));
-    expect(await bookingSummary('studio-plain', id, now)).toMatchObject({
+    expect(await book('studio-plain', service.id)).toEqual({
+      ok: false,
+      error: 'bookingUnavailable',
+    });
+  });
+
+  it('refuses a service without a deposit on the Free plan, and takes it on Pro', async () => {
+    const owner = await db().user.create({
+      data: { email: `nodeposit-${crypto.randomUUID()}@test.naora.app` },
+    });
+    await createBusiness(owner.id, { name: 'Sem sinal', slug: 'sem-sinal' }, { demo: true });
+    const free = (await addService(owner.id, {
+      name: 'Corte',
+      durationMin: 60,
+      price: 5000,
+      deposit: 0,
+    }))!;
+    expect(await book('sem-sinal', free.id)).toEqual({ ok: false, error: 'bookingUnavailable' });
+    await db().business.update({ where: { slug: 'sem-sinal' }, data: { plan: 'PRO' } });
+    const id = idOf(await book('sem-sinal', free.id, now, { email: undefined }));
+    expect(await bookingSummary('sem-sinal', id, now)).toMatchObject({
       state: 'confirmed',
       payment: null,
     });

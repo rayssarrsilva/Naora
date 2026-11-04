@@ -3,6 +3,7 @@ import type { Prisma } from '@/generated/prisma/client';
 import { businessForUser } from '@/lib/business/repository';
 import { db, lockedTransaction } from '@/lib/db/client';
 import { startDeposit } from '@/lib/payments/service';
+import { isBookable, onlineBooking, type OnlineBooking } from './rules';
 import type { BookingData } from './schema';
 import { type Busy, bookableDays, freeSlots, hoursOn } from './slots';
 import { addDays, localDay, zonedInstant } from './time';
@@ -11,7 +12,14 @@ import { addDays, localDay, zonedInstant } from './time';
 export const holdMinutes = 30;
 
 export type BookingContext = {
-  business: { id: string; name: string; slug: string; timezone: string; takesDeposits: boolean };
+  business: {
+    id: string;
+    name: string;
+    slug: string;
+    timezone: string;
+    takesDeposits: boolean;
+    plan: 'FREE' | 'PRO';
+  };
   service: {
     id: string;
     name: string;
@@ -32,7 +40,15 @@ export async function bookingContext(
 ): Promise<BookingContext | null> {
   const found = await db().business.findUnique({
     where: { slug },
-    select: { id: true, name: true, slug: true, timezone: true, demo: true, mpConnectedAt: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      timezone: true,
+      demo: true,
+      plan: true,
+      mpConnectedAt: true,
+    },
   });
   if (!found) return null;
   const { demo, mpConnectedAt, ...business } = found;
@@ -54,9 +70,16 @@ export async function bookingContext(
   };
 }
 
+/** Whether (and how) this service can be booked online; see src/lib/booking/rules.ts. */
+export const bookingRule = (context: BookingContext): OnlineBooking =>
+  onlineBooking({
+    takesDeposits: context.business.takesDeposits,
+    plan: context.business.plan,
+    depositCents: context.service.depositCents,
+  });
+
 /** True when booking this service asks for a Pix deposit. */
-export const needsDeposit = (context: BookingContext) =>
-  context.business.takesDeposits && context.service.depositCents > 0;
+export const needsDeposit = (context: BookingContext) => bookingRule(context) === 'deposit';
 
 /** Bookings that block a time: confirmed ones, and unpaid ones still inside their hold. */
 export const blockingAt = (now: Date): Prisma.BookingWhereInput => ({
@@ -107,7 +130,11 @@ export async function availability(context: BookingContext, now = new Date()): P
 
 export type CreateBookingResult =
   | { ok: true; bookingId: string }
-  | { ok: false; error: 'notFound' | 'slotTaken' | 'emailRequired' | 'paymentUnavailable' };
+  | {
+      ok: false;
+      error:
+        'notFound' | 'slotTaken' | 'emailRequired' | 'paymentUnavailable' | 'bookingUnavailable';
+    };
 
 /**
  * Books a time if it is still free. Two clients clicking the same time at once must never both
@@ -126,6 +153,8 @@ export async function createBooking(
   const context = await bookingContext(slug, data.serviceId);
   if (!context) return { ok: false, error: 'notFound' };
   const { business, service, week } = context;
+  // No online booking without Naora's Pix deposit (or Pro): see rules.ts.
+  if (!isBookable(bookingRule(context))) return { ok: false, error: 'bookingUnavailable' };
   const deposit = needsDeposit(context);
   if (deposit && !data.email) return { ok: false, error: 'emailRequired' };
   const startsAt = new Date(data.startsAt);

@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { routing } from '@/i18n/routing';
 
 const panelFor = (locale: string) =>
@@ -12,4 +12,9 @@ export async function signInWithDemo(locale: string) {
 
 export async function signInWithGoogle(locale: string) {
   await signIn('google', { redirectTo: panelFor(locale) });
+}
+
+/** Leaves the current (demo) account and comes back here to sign in with another one. */
+export async function switchAccount(locale: string) {
+  await signOut({ redirectTo: panelFor(locale).replace('/painel', '/entrar') });
 }

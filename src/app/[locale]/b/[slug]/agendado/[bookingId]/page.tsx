@@ -102,10 +102,6 @@ export default async function BookedPage({ params }: { params: Params }) {
           {ended ? t('bookAnother') : t('back', { name: booking.businessName })}
         </Link>
       </div>
-
-      {state === 'confirmed' && booking.depositCents > 0 && !payment && (
-        <p className="text-sm text-text-secondary">{t('depositAtBusiness')}</p>
-      )}
     </div>
   );
 }
