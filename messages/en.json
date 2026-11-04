@@ -31,7 +31,9 @@
   },
   "Footer": {
     "built": "Built in public by Rayssa Roberta.",
-    "source": "Code on GitHub"
+    "source": "Code on GitHub",
+    "privacy": "Privacy",
+    "terms": "Terms of use"
   },
   "NotFound": {
     "title": "Page not found",
@@ -43,7 +45,8 @@
     "demo": "Sign in with a demo account",
     "demoHint": "No sign-up: it creates an empty account just for you to try. All data is for demo only.",
     "google": "Sign in with Google",
-    "noProviders": "Sign-in is not set up in this environment yet."
+    "noProviders": "Sign-in is not set up in this environment yet.",
+    "legal": "By signing in, you agree to the <terms>terms of use</terms> and the <privacy>privacy policy</privacy>."
   },
   "Panel": {
     "title": "My dashboard",

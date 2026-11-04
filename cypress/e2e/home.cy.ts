@@ -52,6 +52,21 @@ describe('Home page', () => {
   });
 });
 
+describe('Legal pages', () => {
+  it('links the privacy policy and the terms from every page, in both languages', () => {
+    cy.visit('/pt');
+    cy.contains('footer a', 'Privacidade').click();
+    cy.contains('h1', 'Política de privacidade').should('be.visible');
+    cy.contains('h2', 'Seus direitos').should('be.visible');
+    cy.checkPageA11y();
+    cy.contains('footer a', 'Termos de uso').click();
+    cy.contains('h1', 'Termos de uso').should('be.visible');
+    cy.contains('15% de cada sinal pago').should('be.visible');
+    cy.visit('/en/privacidade');
+    cy.contains('h1', 'Privacy policy').should('be.visible');
+  });
+});
+
 describe('Accessibility', () => {
   for (const locale of ['pt', 'en']) {
     for (const theme of ['light', 'dark']) {

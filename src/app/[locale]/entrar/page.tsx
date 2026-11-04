@@ -2,7 +2,7 @@ import { Button } from '@rayssarrsilva/ipe';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { auth, demoEnabled, googleEnabled } from '@/auth';
-import { redirect } from '@/i18n/navigation';
+import { Link, redirect } from '@/i18n/navigation';
 import { signInWithDemo, signInWithGoogle } from './actions';
 
 export async function generateMetadata({
@@ -43,6 +43,20 @@ export default async function SignInPage({ params }: { params: Promise<{ locale:
         </form>
       )}
       {!googleEnabled && !demoEnabled && <p role="alert">{t('noProviders')}</p>}
+      <p className="text-sm text-text-secondary">
+        {t.rich('legal', {
+          terms: (chunks) => (
+            <Link href="/termos" className="underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/privacidade" className="underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
     </div>
   );
 }
