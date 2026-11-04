@@ -11,7 +11,12 @@
     "skip": "Skip to content",
     "otherLocale": "Português",
     "signIn": "Sign in",
-    "panel": "My dashboard"
+    "panel": "My dashboard",
+    "accountLabel": "Your account",
+    "demoAccount": "Demo account",
+    "leaveDemo": "Leave the demo",
+    "signOut": "Sign out",
+    "tryDemo": "Try the demo"
   },
   "Home": {
     "status": "Open beta · start for free",
@@ -53,7 +58,6 @@
   },
   "Panel": {
     "title": "My dashboard",
-    "signOut": "Sign out",
     "demoBanner": "You are in a demo account. Try anything: nothing here is real.",
     "onboardingTitle": "Create your business page",
     "onboardingLead": "This is the link you will send to clients on Instagram and WhatsApp.",

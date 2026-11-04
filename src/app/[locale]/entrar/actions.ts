@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn, signOut } from '@/auth';
+import { auth, signIn, signOut } from '@/auth';
 import { routing } from '@/i18n/routing';
 
 const panelFor = (locale: string) =>
@@ -17,4 +17,16 @@ export async function signInWithGoogle(locale: string) {
 /** Leaves the current (demo) account and comes back here to sign in with another one. */
 export async function switchAccount(locale: string) {
   await signOut({ redirectTo: panelFor(locale).replace('/painel', '/entrar') });
+}
+
+/**
+ * The header's sign-out. Leaving the demo lands on the sign-in page, where the real sign-in is;
+ * leaving a real account lands on the home page.
+ */
+export async function leaveAccount(locale: string) {
+  const session = await auth();
+  const signInPage = panelFor(locale).replace('/painel', '/entrar');
+  await signOut({
+    redirectTo: session?.user?.isDemo ? signInPage : signInPage.replace('/entrar', ''),
+  });
 }

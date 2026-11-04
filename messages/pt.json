@@ -11,7 +11,12 @@
     "skip": "Pular para o conteúdo",
     "otherLocale": "English",
     "signIn": "Entrar",
-    "panel": "Meu painel"
+    "panel": "Meu painel",
+    "accountLabel": "Sua conta",
+    "demoAccount": "Conta demo",
+    "leaveDemo": "Sair da demo",
+    "signOut": "Sair",
+    "tryDemo": "Testar a demo"
   },
   "Home": {
     "status": "Beta aberto · comece grátis",
@@ -53,7 +58,6 @@
   },
   "Panel": {
     "title": "Meu painel",
-    "signOut": "Sair",
     "demoBanner": "Você está numa conta demo. Pode testar à vontade: nada aqui é de verdade.",
     "onboardingTitle": "Crie a página do seu negócio",
     "onboardingLead": "É o endereço que você vai mandar para as clientes no Instagram e no WhatsApp.",
