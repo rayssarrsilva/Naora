@@ -10,6 +10,8 @@
     color: var(--ipe-text-primary);
     font: var(--ipe-typography-body-md);
     -webkit-font-smoothing: antialiased;
+    /* The header is sticky: keep in-page links (#details-title, #payments-title) from hiding under it. */
+    scroll-padding-top: 8rem;
   }
 
   :focus-visible {

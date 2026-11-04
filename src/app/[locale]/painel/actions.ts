@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import type { z } from 'zod';
-import { auth, currentUserId, signOut } from '@/auth';
+import { auth, currentUserId } from '@/auth';
 import {
   addService,
   createBusiness,
@@ -142,8 +142,4 @@ export async function disconnectMercadoPagoAction(): Promise<ActionResult> {
   if (!(await removeMercadoPagoConnection(userId))) return { ok: false, error: 'generic' };
   refreshPanel();
   return { ok: true };
-}
-
-export async function signOutAction(locale: string) {
-  await signOut({ redirectTo: `/${locale === 'en' ? 'en' : 'pt'}` });
 }

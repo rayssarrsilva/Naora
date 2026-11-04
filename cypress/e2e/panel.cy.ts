@@ -113,6 +113,27 @@ describe('Business dashboard', () => {
     cy.contains('button', 'Entrar com uma conta demo').should('be.visible');
   });
 
+  it('keeps sign-in, the demo and the way out in the header on every page', () => {
+    cy.visit('/pt/termos');
+    cy.waitForApp();
+    cy.get('nav[aria-label="Sua conta"]').within(() => {
+      cy.contains('a', 'Entrar').should('have.attr', 'href', '/pt/entrar');
+      cy.contains('button', 'Testar a demo').click();
+    });
+    cy.location('pathname', { timeout: 15000 }).should('eq', '/pt/painel');
+    cy.visit('/pt/termos');
+    cy.waitForApp();
+    cy.get('nav[aria-label="Sua conta"]').within(() => {
+      cy.contains('Conta demo').should('be.visible');
+      cy.contains('a', 'Meu painel').should('have.attr', 'href', '/pt/painel');
+      cy.contains('button', 'Sair da demo').click();
+    });
+    // Leaving the demo lands where the real sign-in is.
+    cy.location('pathname').should('eq', '/pt/entrar');
+    cy.contains('button', 'Entrar com uma conta demo').should('be.visible');
+    cy.get('nav[aria-label="Sua conta"]').contains('a', 'Entrar');
+  });
+
   it('answers 404 for a page that does not exist', () => {
     cy.request({ url: '/pt/b/nao-existe-mesmo', failOnStatusCode: false })
       .its('status')

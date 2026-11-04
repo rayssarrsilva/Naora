@@ -1,4 +1,3 @@
-import { Button } from '@rayssarrsilva/ipe';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { auth } from '@/auth';
@@ -23,7 +22,6 @@ import {
 } from '@/lib/business/repository';
 import { oauthApp } from '@/lib/payments/config';
 import { siteUrl } from '@/lib/site';
-import { signOutAction } from './actions';
 
 export async function generateMetadata({
   params,
@@ -96,11 +94,6 @@ export default async function PanelPage({
     <div className="mx-auto grid max-w-3xl gap-10 px-5 py-10">
       <div className="flex flex-wrap items-center gap-4">
         <h1 className="mr-auto text-display">{business?.name ?? t('title')}</h1>
-        <form action={signOutAction.bind(null, locale)}>
-          <Button type="submit" variant="ghost">
-            {t('signOut')}
-          </Button>
-        </form>
       </div>
 
       {session.user.isDemo && (
