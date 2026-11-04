@@ -31,7 +31,9 @@
   },
   "Footer": {
     "built": "Feito em público por Rayssa Roberta.",
-    "source": "Código no GitHub"
+    "source": "Código no GitHub",
+    "privacy": "Privacidade",
+    "terms": "Termos de uso"
   },
   "NotFound": {
     "title": "Página não encontrada",
@@ -43,7 +45,8 @@
     "demo": "Entrar com uma conta demo",
     "demoHint": "Sem cadastro: cria uma conta vazia só para você testar. Os dados são de demonstração.",
     "google": "Entrar com Google",
-    "noProviders": "O login ainda não está configurado neste ambiente."
+    "noProviders": "O login ainda não está configurado neste ambiente.",
+    "legal": "Ao entrar, você concorda com os <terms>termos de uso</terms> e a <privacy>política de privacidade</privacy>."
   },
   "Panel": {
     "title": "Meu painel",
