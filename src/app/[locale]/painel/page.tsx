@@ -12,6 +12,7 @@ import { Link, redirect } from '@/i18n/navigation';
 import { breakEven } from '@/lib/billing/pricing';
 import { billingOverview } from '@/lib/billing/service';
 import { formatWhen } from '@/lib/booking/format';
+import { onlineBooking } from '@/lib/booking/rules';
 import { upcomingBookings } from '@/lib/booking/repository';
 import { formatPhone } from '@/lib/booking/schema';
 import {
@@ -70,8 +71,16 @@ export default async function PanelPage({
         timeZone: business!.timezone,
       }).format(payments.connectedAt)
     : null;
-  const services = business ? await listServices(business.id) : [];
   const overview = business ? await billingOverview(session.user.id) : null;
+  const takesDeposits = Boolean(payments?.demo || payments?.connectedAt);
+  const services = (business ? await listServices(business.id) : []).map((service) => ({
+    ...service,
+    online: onlineBooking({
+      takesDeposits,
+      plan: overview?.plan ?? 'FREE',
+      depositCents: service.depositCents,
+    }),
+  }));
   const deposits = services
     .filter((s) => s.active && s.depositCents > 0)
     .map((s) => s.depositCents);
@@ -97,6 +106,21 @@ export default async function PanelPage({
       {session.user.isDemo && (
         <p className="rounded-xl bg-bg-surface p-4" role="note">
           {t('demoBanner')}
+        </p>
+      )}
+
+      {business && !takesDeposits && (
+        <p className="grid gap-1 rounded-xl border border-feedback-danger p-4" role="note">
+          <span className="font-semibold">{t('notTakingBookings')}</span>
+          <span>
+            {t.rich('notTakingBookingsHelp', {
+              link: (chunks) => (
+                <a href="#payments-title" className="underline underline-offset-4">
+                  {chunks}
+                </a>
+              ),
+            })}
+          </span>
         </p>
       )}
 

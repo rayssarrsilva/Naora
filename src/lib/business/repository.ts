@@ -2,6 +2,7 @@ import 'server-only';
 import { Prisma } from '@/generated/prisma/client';
 import { db } from '@/lib/db/client';
 import { type DayHours, defaultWeek, minutesToTime, timeToMinutes, weekOrder } from './hours';
+import { isBookable, onlineBooking } from '@/lib/booking/rules';
 import type { ServiceData } from './schema';
 
 /**
@@ -162,7 +163,8 @@ export async function saveHours(userId: string, days: DayHours[]): Promise<boole
 export type PublicBusiness = {
   name: string;
   slug: string;
-  services: Omit<ServiceRow, 'active'>[];
+  /** False until the business can take bookings online (Mercado Pago connected, or Pro). */
+  services: (Omit<ServiceRow, 'active'> & { bookable: boolean })[];
   hours: DayHours[];
 };
 
@@ -170,10 +172,11 @@ export type PublicBusiness = {
 export async function publicBusiness(slug: string): Promise<PublicBusiness | null> {
   const business = await db().business.findUnique({
     where: { slug },
-    select: { id: true, name: true, slug: true },
+    select: { id: true, name: true, slug: true, demo: true, plan: true, mpConnectedAt: true },
   });
   if (!business) return null;
-  const [services, hours] = await Promise.all([
+  const takesDeposits = business.demo || business.mpConnectedAt !== null;
+  const [rows, hours] = await Promise.all([
     db().service.findMany({
       where: { businessId: business.id, active: true },
       select: { id: true, name: true, durationMin: true, priceCents: true, depositCents: true },
@@ -181,6 +184,12 @@ export async function publicBusiness(slug: string): Promise<PublicBusiness | nul
     }),
     getHours(business.id),
   ]);
+  const services = rows.map((service) => ({
+    ...service,
+    bookable: isBookable(
+      onlineBooking({ takesDeposits, plan: business.plan, depositCents: service.depositCents }),
+    ),
+  }));
   return { name: business.name, slug: business.slug, services, hours };
 }
 

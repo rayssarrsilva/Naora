@@ -86,6 +86,33 @@ describe('Business dashboard', () => {
     cy.contains('li[aria-current="true"]', 'Grátis').should('be.visible');
   });
 
+  it('on Free, a service without a deposit cannot be booked online, and the owner is told why', () => {
+    const name = `Studio Sem Sinal ${Date.now()}`;
+    cy.signInAsDemo();
+    cy.field('Nome do negócio').type(name);
+    cy.contains('button', 'Criar página').click();
+    cy.contains('h1', name).should('be.visible');
+    cy.field('Serviço').type('Corte sem sinal');
+    cy.field('Preço (R$)').type('50');
+    cy.contains('button', 'Adicionar serviço').click();
+    cy.contains('li', 'Corte sem sinal').should(
+      'contain.text',
+      'no plano Grátis, todo serviço precisa de sinal',
+    );
+    cy.contains('a', 'Abrir página').click();
+    cy.contains('li', 'Corte sem sinal').should('contain.text', 'Agendamento online em breve');
+    cy.contains('li', 'Corte sem sinal').find('a').should('not.exist');
+  });
+
+  it('lets a demo visitor leave the demo from the sign-in page', () => {
+    cy.signInAsDemo();
+    cy.visit('/pt/entrar');
+    cy.contains('Você está numa conta demo').should('be.visible');
+    cy.contains('button', 'Sair da demo e entrar com outra conta').click();
+    cy.location('pathname').should('eq', '/pt/entrar');
+    cy.contains('button', 'Entrar com uma conta demo').should('be.visible');
+  });
+
   it('answers 404 for a page that does not exist', () => {
     cy.request({ url: '/pt/b/nao-existe-mesmo', failOnStatusCode: false })
       .its('status')

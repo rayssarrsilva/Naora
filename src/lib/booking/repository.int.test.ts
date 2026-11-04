@@ -26,15 +26,19 @@ async function newUser(name: string) {
   });
 }
 
-/** An owner with a business and a 60-minute service. */
+/**
+ * An owner with a business and a 60-minute service. Pro with no deposit, so bookings are confirmed
+ * at once: these tests are about times and isolation; deposits are covered in payments/.
+ */
 async function salon(slug: string) {
   const owner = await newUser(slug);
   await createBusiness(owner.id, { name: slug, slug });
+  await db().business.update({ where: { slug }, data: { plan: 'PRO' } });
   const service = (await addService(owner.id, {
     name: 'Escova',
     durationMin: 60,
     price: 4500,
-    deposit: 1000,
+    deposit: 0,
   }))!;
   return { owner, service };
 }
@@ -59,7 +63,7 @@ describe('createBooking', () => {
     expect(result.ok).toBe(true);
 
     const summary = await bookingSummary('studio-ana', result.ok ? result.bookingId : '');
-    expect(summary).toMatchObject({ serviceName: 'Escova', depositCents: 1000, clientName: 'Bia' });
+    expect(summary).toMatchObject({ serviceName: 'Escova', priceCents: 4500, clientName: 'Bia' });
 
     // Editing the catalog later does not change what the client booked.
     await deleteService(owner.id, service.id);
